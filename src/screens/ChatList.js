@@ -76,10 +76,6 @@ const ChatList = ({navigation}) => {
     navigation.replace('Login');
   }
 
-  function chatHandler(id) {
-    return navigation.navigate('Chat', {groupId: id});
-  }
-
   function createHandler() {
     return navigation.navigate('CreateGroup');
   }

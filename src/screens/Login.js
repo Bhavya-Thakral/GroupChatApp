@@ -21,7 +21,7 @@ const Login = ({navigation}) => {
         const user = userCredential.user;
         console.log("user",user);
         await AsyncStorage.setItem('user', JSON.stringify(user));
-        navigation.replace('ChatList');
+        navigation.replace('MyTabs');
       })
       .catch(error => {
         console.error("Error code:", error.code);
