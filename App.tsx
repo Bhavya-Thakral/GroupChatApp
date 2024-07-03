@@ -13,6 +13,7 @@ import PhoneSignIn from './src/screens/PhoneSignIn';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import OneList from './src/screens/OneList';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import DirectChat from './src/screens/DirectChat';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -44,7 +45,7 @@ const App = () => {
 
   function MyTabs() {
     return (
-      <Tab.Navigator>
+      <Tab.Navigator initialRouteName="OneList">
         <Tab.Screen
           name="OneList"
           component={OneList}
@@ -53,6 +54,7 @@ const App = () => {
               return <Icon name="comment" size={size} color={color} />;
             },
             tabBarLabel: 'Chats',
+            title: 'Chats',
           }}
         />
         <Tab.Screen
@@ -62,6 +64,7 @@ const App = () => {
             tabBarIcon: ({size, color}) => {
               return <Icon name="comments" size={size} color={color} />;
             },
+            title: 'Groups',
             tabBarLabel: 'Groups',
           }}
         />
@@ -115,6 +118,13 @@ const App = () => {
         <Stack.Screen
           name="CreateGroup"
           component={CreateGroup}
+          options={{
+            headerShown: true,
+          }}
+        />
+        <Stack.Screen
+          name="DirectChat"
+          component={DirectChat}
           options={{
             headerShown: true,
           }}

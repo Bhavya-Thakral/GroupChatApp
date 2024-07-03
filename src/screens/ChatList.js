@@ -1,5 +1,6 @@
 import {FlatList, Pressable, StyleSheet, Text, View} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
+import Icon1 from 'react-native-vector-icons/FontAwesome6';
 import {auth, database} from '../../firebase/firebase';
 import {ref, onValue, update} from 'firebase/database';
 import React, {useEffect, useLayoutEffect, useState} from 'react';
@@ -100,7 +101,8 @@ const ChatList = ({navigation}) => {
             style={({pressed}) =>
               pressed ? [styles.chat, styles.press] : styles.chat
             }
-            onPress={() => navigation.navigate('Chat', {groupId: item.id})}>
+            onPress={() => navigation.navigate('Chat', {chatType:'groups' ,chatId: item.id})}>
+              <Icon1 name="user-group" size={20} color={'#131313'} style={{marginRight: 10}} />
             <Text style={styles.item}>{item.name}</Text>
           </Pressable>
         )}
@@ -129,24 +131,22 @@ export default ChatList;
 
 const styles = StyleSheet.create({
   chat: {
-    // width: '95%',
-    flex:1,
-    width: 300,
     backgroundColor: 'lightgrey',
     borderWidth: 1,
     borderColor: 'grey',
     padding: 10,
     borderRadius: 5,
     marginBottom:10,
+    flexDirection: 'row',
 
   },
   main: {
     width: '100%',
-    alignItems: 'center',
     padding: 10,
   },
   text: {
     color: '#131313',
+    fontSize:18
   },
   press: {
     opacity: 0.75,
@@ -161,15 +161,14 @@ const styles = StyleSheet.create({
   groupContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    // alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
   item: {
-    // flex: 1,
     paddingHorizontal: 10,
-    // width: '100%',
-    color:'black'
+    color: '#131313',
+    fontSize:18
   },
 });
