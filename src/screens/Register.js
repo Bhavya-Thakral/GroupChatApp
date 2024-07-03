@@ -3,26 +3,36 @@ import { Pressable, StyleSheet,TextInput, Text, View, Alert} from 'react-native'
 import React, { useState } from 'react';
 import { CommonActions } from '@react-navigation/native';
 
-import {auth} from '../../firebase/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import {auth, database} from '../../firebase/firebase';
+import { createUserWithEmailAndPassword ,updateProfile } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ref, set, update } from 'firebase/database';
 
 const Register = ({navigation}) => {
   const [email,setEmail]=useState('');
   const [password,setPassword]=useState("");
-
+  const [displayName, setName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
 
     const handleRegister = () => {
-      createUserWithEmailAndPassword(auth,email, password)
+      createUserWithEmailAndPassword(auth,email,password,displayName,phoneNumber)
         .then(async (userCredential) => {
-          // Signed up
           const user = userCredential.user;
+          await updateProfile(user, {
+          displayName: displayName,
+          phoneNumber: phoneNumber,
+          });
           await AsyncStorage.setItem('user', JSON.stringify(user));
+          await set(ref(database, `users/${user.uid}`), {
+            email: user.email,
+            name: displayName,
+            phnNo: phoneNumber,
+          });    
           navigation.dispatch(
             CommonActions.reset({
               index: 0,
-              routes: [{ name: 'ChatList' }],
+              routes: [{ name: 'MyTabs' }],
             })
           );
         })
@@ -32,11 +42,16 @@ const Register = ({navigation}) => {
         });
   }
 
-
-
-
   return (
     <View style={styles.main}>
+      <View style={{alignSelf: 'flex-start', width: '100%'}}>
+        <Text style={styles.subHead}>Name</Text>
+        <TextInput style={styles.input} onChangeText={setName} value={displayName} placeholder='Enter Name' placeholderTextColor={"black"} />
+      </View>
+      <View style={{alignSelf: 'flex-start', width: '100%'}}>
+        <Text style={styles.subHead}>Phone No.</Text>
+        <TextInput style={styles.input} onChangeText={setPhoneNumber} keyboardType='number-pad' maxLength={10} value={phoneNumber} placeholder='Enter Phone No.' placeholderTextColor={"black"} />
+      </View>
       <View style={{alignSelf: 'flex-start', width: '100%'}}>
         <Text style={styles.subHead}>Email</Text>
         <TextInput style={styles.input} onChangeText={setEmail} value={email} placeholder='Enter Email' placeholderTextColor={"black"} />
@@ -46,7 +61,6 @@ const Register = ({navigation}) => {
         <TextInput style={styles.input} placeholderTextColor={"black"} placeholder='Enter password' value={password} onChangeText={setPassword} secureTextEntry />
       </View>
       <View style={{alignSelf: 'flex-start', width: '100%', gap: 10}}>
-        
         <Pressable onPress={handleRegister} >
           <View style={styles.btn}>
             <Text style={styles.btnTxt}>Register</Text>
