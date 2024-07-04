@@ -54,7 +54,7 @@ const Register = ({navigation}) => {
       </View>
       <View style={{alignSelf: 'flex-start', width: '100%'}}>
         <Text style={styles.subHead}>Email</Text>
-        <TextInput style={styles.input} onChangeText={setEmail} value={email} placeholder='Enter Email' placeholderTextColor={"black"} />
+        <TextInput style={styles.input} onChangeText={setEmail} keyboardType='email-address' value={email} placeholder='Enter Email' placeholderTextColor={"black"} />
       </View>
       <View style={{alignSelf: 'flex-start', width: '100%'}}>
         <Text style={styles.subHead}>Password</Text>
