@@ -48,9 +48,9 @@ const Login = ({navigation}) => {
         <Pressable onPress={handleRegister} >
           <Text style={styles.btn1}>Want to Register?</Text>
         </Pressable>
-        <Pressable onPress={handlePhoneSignIn} >
+        {/* <Pressable onPress={handlePhoneSignIn} >
           <Text style={styles.btn1}>Sign in through Mobile Number</Text>
-        </Pressable>
+        </Pressable> */}
         <Pressable style={({pressed})=> pressed && styles.pressed} onPress={handleLogin} >
           <View style={styles.btn}>
             <Text style={styles.btnTxt}>Login</Text>

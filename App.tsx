@@ -14,6 +14,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import OneList from './src/screens/OneList';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DirectChat from './src/screens/DirectChat';
+import messaging from '@react-native-firebase/messaging';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -36,6 +37,15 @@ const App = () => {
 
     // Cleanup function
     return () => unsubscribe();
+  }, []);
+
+  async function getToken() {
+    // await messaging().registerDeviceForRemoteMessages();
+    const token = await messaging().getToken();
+    console.log('Token', token);
+  }
+  useEffect(() => {
+    getToken();
   }, []);
 
   if (initializing) {

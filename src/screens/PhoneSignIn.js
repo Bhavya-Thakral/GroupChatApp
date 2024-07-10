@@ -1,16 +1,22 @@
-import {StyleSheet, Text, TextInput, View} from 'react-native';
-import React from 'react';
+import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+import React, { useState } from 'react';
 import { auth } from '../../firebase/firebase';
 
 const PhoneSignIn = () => {
 
+  const [phoneNumber, setPhoneNumber] = useState('');
     const [confirm, setConfirm] = useState(null);
 
     const [code, setCode] = useState('');
 
     async function signInWithPhoneNumber(phoneNumber) {
+      try {
         const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
         setConfirm(confirmation);
+        
+      } catch (error) {
+        console.error(error)
+      }
       }
 
       async function confirmCode() {
@@ -21,15 +27,16 @@ const PhoneSignIn = () => {
         }
       }
 
+
   return (
     <View style={styles.main}>
       <View style={{alignSelf: 'flex-start', width: '100%'}}>
         <Text style={styles.subHead}>Mobile Number</Text>
         <TextInput
           style={styles.input}
-          onChangeText={setEmail}
-          value={email}
-          placeholder="Enter Email"
+          onChangeText={setPhoneNumber}
+          value={phoneNumber}
+          placeholder="Enter phone number"
           placeholderTextColor={'black'}
         />
       </View>
@@ -39,24 +46,19 @@ const PhoneSignIn = () => {
         <TextInput
           style={styles.input}
           placeholderTextColor={'black'}
-          placeholder="Enter password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
+          placeholder="Enter OTP"
+          value={code}
+          onChangeText={setCode}
+          // secureTextEntry
         />
       </View>
 
       )}
       <View style={{alignSelf: 'flex-start', width: '100%', gap: 10}}>
-        <Pressable onPress={handleRegister}>
-          <Text style={styles.btn1}>Want to Register?</Text>
-        </Pressable>
-        <Pressable onPress={handlePhoneSignIn}>
-          <Text style={styles.btn1}>Sign in through Email</Text>
-        </Pressable>
+        
         <Pressable
           style={({pressed}) => pressed && styles.pressed}
-          onPress={signInWithPhoneNumber}>
+          onPress={ confirm === 'confirmation'? confirmCode : signInWithPhoneNumber}>
           <View style={styles.btn}>
             <Text style={styles.btnTxt}>{confirm ? 'Send OTP' :'Login'}</Text>
           </View>
