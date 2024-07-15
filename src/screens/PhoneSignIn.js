@@ -1,25 +1,31 @@
-import {StyleSheet, Text, TextInput, View} from 'react-native';
-import React from 'react';
-import { auth } from '../../firebase/firebase';
+import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
+import React, {useState} from 'react';
+import auth from '@react-native-firebase/auth';
+import {signInWithPhoneNumber} from 'firebase/auth';
 
-const PhoneSignIn = () => {
+const PhoneSignIn = ({navigate}) => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [confirm, setConfirm] = useState(null);
+  const [code, setCode] = useState('');
 
-    const [confirm, setConfirm] = useState(null);
+  async function signInWithPhoneNumber(phoneNumber) {
+    const newPhoneNumber = '+91 ' + phoneNumber;
+    // console.log('newPhoneNumber', newPhoneNumber);
 
-    const [code, setCode] = useState('');
+    const confirmation = await auth().signInWithPhoneNumber(newPhoneNumber);
+    setConfirm(confirmation);
+  }
 
-    async function signInWithPhoneNumber(phoneNumber) {
-        const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-        setConfirm(confirmation);
-      }
-
-      async function confirmCode() {
-        try {
-          await confirm.confirm(code);
-        } catch (error) {
-          console.log('Invalid code.');
-        }
-      }
+  async function confirmCode() {
+    try {
+      // console.log('code', code);
+      await confirm.confirm(code);
+      // console.log('Success');
+      navigate.navigate('Register');
+    } catch (error) {
+      console.log('Invalid code.');
+    }
+  }
 
   return (
     <View style={styles.main}>
@@ -27,38 +33,36 @@ const PhoneSignIn = () => {
         <Text style={styles.subHead}>Mobile Number</Text>
         <TextInput
           style={styles.input}
-          onChangeText={setEmail}
-          value={email}
-          placeholder="Enter Email"
+          onChangeText={setPhoneNumber}
+          value={phoneNumber}
+          placeholder="Enter phone number"
           placeholderTextColor={'black'}
+          keyboardType="phone-pad"
         />
       </View>
       {confirm && (
-      <View style={{alignSelf: 'flex-start', width: '100%'}}>
-        <Text style={styles.subHead}>OTP</Text>
-        <TextInput
-          style={styles.input}
-          placeholderTextColor={'black'}
-          placeholder="Enter password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-      </View>
-
+        <View style={{alignSelf: 'flex-start', width: '100%'}}>
+          <Text style={styles.subHead}>OTP</Text>
+          <TextInput
+            style={styles.input}
+            placeholderTextColor={'black'}
+            placeholder="Enter OTP"
+            value={code}
+            onChangeText={setCode}
+            // secureTextEntry
+          />
+        </View>
       )}
       <View style={{alignSelf: 'flex-start', width: '100%', gap: 10}}>
-        <Pressable onPress={handleRegister}>
-          <Text style={styles.btn1}>Want to Register?</Text>
-        </Pressable>
-        <Pressable onPress={handlePhoneSignIn}>
-          <Text style={styles.btn1}>Sign in through Email</Text>
-        </Pressable>
         <Pressable
           style={({pressed}) => pressed && styles.pressed}
-          onPress={signInWithPhoneNumber}>
+          onPress={
+            confirm !== null
+              ? confirmCode
+              : signInWithPhoneNumber.bind(this, phoneNumber)
+          }>
           <View style={styles.btn}>
-            <Text style={styles.btnTxt}>{confirm ? 'Send OTP' :'Login'}</Text>
+            <Text style={styles.btnTxt}>{confirm ? 'Send OTP' : 'Login'}</Text>
           </View>
         </Pressable>
       </View>
