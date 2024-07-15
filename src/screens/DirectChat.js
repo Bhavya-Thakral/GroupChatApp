@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, useLayoutEffect} from 'react';
 import {
   View,
   TextInput,
@@ -13,47 +13,115 @@ import {
 import {auth, database} from '../../firebase/firebase';
 import {ref, onValue, push} from 'firebase/database';
 import {format, isToday, isYesterday} from 'date-fns';
-import {PickImage} from './PickImage';
+import {PickImage, PickVideo} from './PickImage';
 import {uploadImage, uploadVideo} from './StoreToFirebase';
 import Video from 'react-native-video';
-import Icon  from 'react-native-vector-icons/AntDesign';
+import Icon from 'react-native-vector-icons/AntDesign';
+import Icon1 from 'react-native-vector-icons/FontAwesome';
+import {getCurrentLocation} from './LocationHelper';
+import MapView, {Marker} from 'react-native-maps';
+import ButtonMy from './ButtonMy';
+import {useChat} from '../Context/Context';
 
-const DirectChat = ({route}) => {
-  const {userId} = route.params;
+const DirectChat = ({route, navigation}) => {
+  const {chatType, userId: chatId, chatName: chatName} = route.params;
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [isUploadingLocation, setIsUploadingLocation] = useState(false);
 
-  console.log('messages', messages);
-
+  const {currentChat} = useChat();
   const currentUserId = auth.currentUser.uid;
-  const chatId =
-    currentUserId < userId
-      ? `${currentUserId}_${userId}`
-      : `${userId}_${currentUserId}`;
+
+  // const chatId = chatType === 'group' ? groupId : currentUserId < userId ? `${currentUserId}_${userId}` : `${userId}_${currentUserId}`;
+
   const flatListRef = useRef(null);
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: chatName,
+      headerRight: () => (
+        <View style={{flexDirection: 'row'}}>
+          <Pressable>
+            <Icon1
+              name="phone"
+              size={24}
+              color={'#131313'}
+              style={{marginRight: 20}}
+            />
+          </Pressable>
+          <Pressable>
+            <Icon1
+              name="video-camera"
+              size={24}
+              color={'#131313'}
+              style={{marginRight: 20}}
+            />
+          </Pressable>
+        </View>
+      ),
+      headerLeft: () => {
+        return currentChat?.photoURL ? (
+          <Image
+            source={{uri: currentChat?.photoURL}}
+            style={{
+              width: 50,
+              height: 50,
+              borderRadius: 25,
+              marginLeft: 10,
+              backgroundColor: 'lightgrey',
+            }}
+          />
+        ) : (
+          <View
+            style={{
+              width: 50,
+              height: 50,
+              borderWidth: 1,
+              borderRadius: 25,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginLeft: 10,
+            }}>
+            <Icon name="user" size={20} color={'#131313'} />
+          </View>
+        );
+      },
+    });
+  }, [navigation, chatName]);
+
   useEffect(() => {
-    const messagesRef = ref(database, `directMessages/${chatId}/messages`);
+    const messagesRef = ref(database, `${chatType}/${chatId}/messages`);
     onValue(messagesRef, snapshot => {
       const data = snapshot.val();
       const messagesArray = [];
       if (data) {
         Object.keys(data).forEach(key => {
-          messagesArray.push({id: key, ...data[key]});
+          const message = {id: key, ...data[key]};
+          if (
+            message.userId === currentUserId ||
+            message.recipientId === currentUserId
+          ) {
+            messagesArray.push(message);
+          }
         });
       }
-      setMessages(messagesArray.reverse()); // Reverse to display the latest message at the bottom
+      // Reverse to display the latest message at the bottom
+      setMessages(messagesArray.reverse());
     });
-  }, [chatId]);
+  }, [chatId, currentUserId]);
 
   const sendMessage = async () => {
     if (text) {
-      const messagesRef = ref(database, `directMessages/${chatId}/messages`);
+      const messagesRef = ref(database, `${chatType}/${chatId}/messages`);
       await push(messagesRef, {
-        senderId: currentUserId,
+        userId: auth.currentUser.uid,
         text,
         timestamp: Date.now(),
+        email: auth.currentUser.email,
+        name: auth.currentUser.displayName,
+        recipientId: chatId,
       });
       setText('');
       flatListRef.current.scrollToOffset({offset: 0, animated: true});
@@ -79,28 +147,31 @@ const DirectChat = ({route}) => {
   };
 
   const saveImageUrl = async (chatId, imageUrl) => {
-    const messagesRef = ref(database, `directMessages/${chatId}/messages`);
+    const messagesRef = ref(database, `${chatType}/${chatId}/messages`);
     await push(messagesRef, {
       img: imageUrl,
       timestamp: Date.now(),
       userId: auth.currentUser.uid,
       email: auth.currentUser.email,
+      name: auth.currentUser.displayName,
+      recipientId: chatId,
     });
   };
 
-
   const saveVideoUrl = async (chatId, videoUrl) => {
-    const messagesRef = ref(database, `directMessages/${chatId}/messages`);
+    const messagesRef = ref(database, `${chatType}/${chatId}/messages`);
     await push(messagesRef, {
       video: videoUrl,
       timestamp: Date.now(),
       userId: auth.currentUser.uid,
       email: auth.currentUser.email,
+      name: auth.currentUser.displayName,
+      recipientId: chatId,
     });
   };
 
   const sendImage = async () => {
-    setIsUploading(true);
+    setIsUploadingImage(true);
     PickImage(async image => {
       try {
         const imageUrl = await uploadImage(image);
@@ -109,14 +180,14 @@ const DirectChat = ({route}) => {
       } catch (err) {
         Alert.alert('Error', err.message);
       } finally {
-        setIsUploading(false);
+        setIsUploadingImage(false);
       }
     });
   };
 
   const sendVideo = async () => {
-    setIsUploading(true);
-    PickImage(async video => {
+    setIsUploadingVideo(true);
+    PickVideo(async video => {
       try {
         const videoUrl = await uploadVideo(video);
         await saveVideoUrl(chatId, videoUrl);
@@ -124,9 +195,36 @@ const DirectChat = ({route}) => {
       } catch (err) {
         Alert.alert('Error', err.message);
       } finally {
-        setIsUploading(false);
+        setIsUploadingVideo(false);
       }
     });
+  };
+
+  const sendLocationMessage = async () => {
+    const user = auth.currentUser;
+    setIsUploadingLocation(true);
+    if (user) {
+      try {
+        const location = await getCurrentLocation();
+        const messagesRef = ref(database, `${chatType}/${chatId}/messages`);
+        await push(messagesRef, {
+          type: 'location',
+          timestamp: Date.now(),
+          userId: user.uid,
+          email: user.email,
+          name: auth.currentUser.displayName,
+          location: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          recipientId: chatId,
+        });
+      } catch (error) {
+        console.error('Error getting location:', error);
+      } finally {
+        setIsUploadingLocation(false);
+      }
+    }
   };
 
   return (
@@ -140,10 +238,16 @@ const DirectChat = ({route}) => {
           <View
             style={[
               styles.messageContainer,
-              item.senderId === currentUserId
+              item.senderId === currentUserId || item.userId === currentUserId
                 ? styles.myMessage
                 : styles.theirMessage,
             ]}>
+            {item.senderId !== currentUserId &&
+              item.userId !== currentUserId &&
+              chatType === 'groups' && (
+                <Text style={{color: 'black'}}>{item.name || item.email}</Text>
+              )}
+
             {item.text ? (
               <Text style={{fontSize: 18, color: 'black'}}>{item.text}</Text>
             ) : null}
@@ -151,39 +255,73 @@ const DirectChat = ({route}) => {
               <Image source={{uri: item.img}} style={styles.img} />
             ) : null}
             {item.video ? (
-              <Video source={{uri: item.video}} style={styles.img} paused={true} controls={true} resizeMode='contain' />
+              <Video
+                source={{uri: item.video}}
+                style={styles.img}
+                paused={true}
+                controls={true}
+                resizeMode="contain"
+              />
             ) : null}
+            {item.type === 'location' && (
+              <MapView
+                style={{width: 200, height: 200}}
+                initialRegion={{
+                  latitude: item.location.latitude,
+                  longitude: item.location.longitude,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}>
+                <Marker
+                  coordinate={{
+                    latitude: item.location.latitude,
+                    longitude: item.location.longitude,
+                  }}
+                />
+              </MapView>
+            )}
             <Text style={styles.timestamp}>
               {formatTimestamp(item.timestamp)}
             </Text>
-            
           </View>
         )}
         inverted={true}
       />
-      <View style={{flexDirection: 'row',width:'100%',justifyContent:'space-between'}}>
-        {/* <Button
-          title={isUploading ? ' Sending' : 'Send Image'}
-          disabled={!!isUploading}
-          onPress={sendImage}
-        />
-        <Button
-          title={isUploading ? ' Sending' : 'Send Video'}
-          disabled={!!isUploading}
-          onPress={sendVideo}
-        /> */}
-     <Pressable>
-      <Icon name='plus' size={20} color={'#131313'} />
-     </Pressable>
-      <TextInput
-        style={styles.input}
-        value={text}
-        onChangeText={setText}
-        placeholder="Type a message"
-        placeholderTextColor={'#131313'}
-        
-      />
-        <Button title="Send" onPress={sendMessage} />
+      <View style={{width: '100%', alignItems: 'center', gap: 15}}>
+        <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
+          <ButtonMy
+            onPress={sendLocationMessage}
+            icon={isUploadingLocation ? 'spinner' : 'location-arrow'}
+            disabled={!!isUploadingLocation}
+          />
+          <ButtonMy
+            onPress={sendImage}
+            icon={isUploadingImage ? 'spinner' : 'image'}
+            disabled={!!isUploadingImage}
+          />
+          <ButtonMy
+            onPress={sendVideo}
+            icon={isUploadingVideo ? 'spinner' : 'film'}
+            disabled={!!isUploadingVideo}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            width: '100%',
+            alignItems: 'center',
+            gap: 10,
+            justifyContent: 'center',
+          }}>
+          <TextInput
+            style={styles.input}
+            value={text}
+            onChangeText={setText}
+            placeholder="Type a message"
+            placeholderTextColor={'#131313'}
+          />
+          <ButtonMy onPress={sendMessage} icon={'arrow-right'} />
+        </View>
       </View>
     </View>
   );
@@ -211,9 +349,12 @@ const styles = StyleSheet.create({
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
-    marginBottom: 12,
+    // marginBottom: 12,
     paddingHorizontal: 8,
-    width:'60%'
+    width: '60%',
+    flex: 1,
+    borderRadius: 10,
+    color: 'black',
   },
   timestamp: {
     fontSize: 12,

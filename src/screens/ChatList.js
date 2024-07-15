@@ -6,14 +6,19 @@ import {ref, onValue, update} from 'firebase/database';
 import React, {useEffect, useLayoutEffect, useState} from 'react';
 import {signOut} from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Button } from 'react-native';
+import {Button} from 'react-native';
+import {useChat} from '../Context/Context';
 
 const ChatList = ({navigation}) => {
   const [userGroups, setUserGroups] = useState([]);
   const [availableGroups, setAvailableGroups] = useState([]);
+  const user = auth.currentUser;
+  const {currentUser} = useChat();
+  // console.log('currentUser', currentUser);
+  // console.log(userGroups, 'userGroups');
+  // console.log(availableGroups, 'availableGroups');
 
   useEffect(() => {
-    const user = auth.currentUser;
     if (user) {
       const userGroupsRef = ref(database, 'groups');
       onValue(userGroupsRef, snapshot => {
@@ -38,6 +43,7 @@ const ChatList = ({navigation}) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitle: `${currentUser?.displayName}'s Groups` || 'Groups',
       headerRight: () => {
         return (
           <View style={{flexDirection: 'row'}}>
@@ -92,38 +98,48 @@ const ChatList = ({navigation}) => {
   return (
     <>
       <Text style={styles.sectionHeader}>My Groups</Text>
-    <View style={styles.main}>
-      <FlatList
-        data={userGroups}
-        keyExtractor={item => item.id}
-        renderItem={({item}) => (
-          <Pressable
-            style={({pressed}) =>
-              pressed ? [styles.chat, styles.press] : styles.chat
-            }
-            onPress={() => navigation.navigate('Chat', {chatType:'groups' ,chatId: item.id})}>
-              <Icon1 name="user-group" size={20} color={'#131313'} style={{marginRight: 10}} />
-            <Text style={styles.item}>{item.name}</Text>
-          </Pressable>
-        )}
-      />
+      <View style={styles.main}>
+        <FlatList
+          data={userGroups}
+          keyExtractor={item => item.id}
+          renderItem={({item}) => (
+            <Pressable
+              style={({pressed}) =>
+                pressed ? [styles.chat, styles.press] : styles.chat
+              }
+              onPress={() =>
+                navigation.navigate('DirectChat', {
+                  chatType: 'groups',
+                  userId: item.id,
+                  chatName: item.name,
+                })
+              }>
+              <Icon1
+                name="user-group"
+                size={20}
+                color={'#131313'}
+                style={{marginRight: 10}}
+              />
+              <Text style={styles.item}>{item.name}</Text>
+            </Pressable>
+          )}
+        />
       </View>
 
       <Text style={styles.sectionHeader}>Available Groups</Text>
       <View style={styles.main}>
-      <FlatList
-        data={availableGroups}
-        keyExtractor={item => item.id}
-        renderItem={({item}) => (
-          <View style={styles.groupContainer}>
-            <Text style={styles.item}>{item.name}</Text>
-            <Button title="Join Group" onPress={() => joinGroup(item.id)} />
-          </View>
-        )}
-      />
-    </View>
+        <FlatList
+          data={availableGroups}
+          keyExtractor={item => item.id}
+          renderItem={({item}) => (
+            <View style={styles.groupContainer}>
+              <Text style={styles.item}>{item.name}</Text>
+              <Button title="Join Group" onPress={() => joinGroup(item.id)} />
+            </View>
+          )}
+        />
+      </View>
     </>
-
   );
 };
 
@@ -136,9 +152,8 @@ const styles = StyleSheet.create({
     borderColor: 'grey',
     padding: 10,
     borderRadius: 5,
-    marginBottom:10,
+    marginBottom: 10,
     flexDirection: 'row',
-
   },
   main: {
     width: '100%',
@@ -146,7 +161,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#131313',
-    fontSize:18
+    fontSize: 18,
   },
   press: {
     opacity: 0.75,
@@ -169,6 +184,6 @@ const styles = StyleSheet.create({
   item: {
     paddingHorizontal: 10,
     color: '#131313',
-    fontSize:18
+    fontSize: 18,
   },
 });

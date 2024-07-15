@@ -15,6 +15,7 @@ import OneList from './src/screens/OneList';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DirectChat from './src/screens/DirectChat';
 import messaging from '@react-native-firebase/messaging';
+import {ChatProvider} from './src/Context/Context';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -27,7 +28,8 @@ const App = () => {
     const unsubscribe = auth.onAuthStateChanged(async user => {
       if (user) {
         await AsyncStorage.setItem('user', JSON.stringify(user));
-        setInitialRoute('ChatList');
+
+        setInitialRoute('MyTabs');
       } else {
         await AsyncStorage.removeItem('user');
         setInitialRoute('Login');
@@ -37,15 +39,6 @@ const App = () => {
 
     // Cleanup function
     return () => unsubscribe();
-  }, []);
-
-  async function getToken() {
-    // await messaging().registerDeviceForRemoteMessages();
-    const token = await messaging().getToken();
-    console.log('Token', token);
-  }
-  useEffect(() => {
-    getToken();
   }, []);
 
   if (initializing) {
@@ -83,64 +76,66 @@ const App = () => {
   }
 
   return (
-    <NavigationContainer
-      initialState={{
-        routes: [{name: initialRoute}],
-      }}>
-      <StatusBar
-        barStyle={'dark-content'}
-        translucent={true}
-        backgroundColor={'transparent'}
-      />
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
+    <ChatProvider>
+      <NavigationContainer
+        initialState={{
+          routes: [{name: initialRoute}],
         }}>
-        <Stack.Screen
-          name="Login"
-          component={Login}
-          options={{
-            headerShown: true,
-          }}
+        <StatusBar
+          barStyle={'dark-content'}
+          translucent={true}
+          backgroundColor={'transparent'}
         />
-        <Stack.Screen
-          name="PhoneSignIn"
-          component={PhoneSignIn}
-          options={{
-            headerShown: true,
-          }}
-        />
-        <Stack.Screen
-          name="Register"
-          component={Register}
-          options={{
-            headerShown: true,
-          }}
-        />
-        <Stack.Screen name="MyTabs" component={MyTabs} />
-        <Stack.Screen
-          name="Chat"
-          component={Chat}
-          options={{
-            headerShown: true,
-          }}
-        />
-        <Stack.Screen
-          name="CreateGroup"
-          component={CreateGroup}
-          options={{
-            headerShown: true,
-          }}
-        />
-        <Stack.Screen
-          name="DirectChat"
-          component={DirectChat}
-          options={{
-            headerShown: true,
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}>
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="PhoneSignIn"
+            component={PhoneSignIn}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="Register"
+            component={Register}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen name="MyTabs" component={MyTabs} />
+          <Stack.Screen
+            name="Chat"
+            component={Chat}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="CreateGroup"
+            component={CreateGroup}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="DirectChat"
+            component={DirectChat}
+            options={{
+              headerShown: true,
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ChatProvider>
   );
 };
 
