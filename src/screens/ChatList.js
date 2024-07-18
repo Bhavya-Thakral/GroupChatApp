@@ -14,6 +14,10 @@ const ChatList = ({navigation}) => {
   const [availableGroups, setAvailableGroups] = useState([]);
   const user = auth.currentUser;
   const {currentUser} = useChat();
+
+  const userToken = AsyncStorage.getItem('userToken');
+  console.log('userToken', userToken);
+
   // console.log('currentUser', currentUser);
   // console.log(userGroups, 'userGroups');
   // console.log(availableGroups, 'availableGroups');
@@ -80,6 +84,7 @@ const ChatList = ({navigation}) => {
   async function logoutHandler() {
     await signOut(auth);
     await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem('userToken');
     navigation.replace('Login');
   }
 

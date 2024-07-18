@@ -2,7 +2,6 @@ import React, {useEffect, useState, useRef, useLayoutEffect} from 'react';
 import {
   View,
   TextInput,
-  Button,
   FlatList,
   StyleSheet,
   Text,
@@ -13,7 +12,7 @@ import {
 import {auth, database} from '../../firebase/firebase';
 import {ref, onValue, push} from 'firebase/database';
 import {format, isToday, isYesterday} from 'date-fns';
-import {PickImage, PickVideo} from './PickImage';
+import {PickImage, PickVideo, uploadDocument} from './PickImage';
 import {uploadImage, uploadVideo} from './StoreToFirebase';
 import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -22,6 +21,7 @@ import {getCurrentLocation} from './LocationHelper';
 import MapView, {Marker} from 'react-native-maps';
 import ButtonMy from './ButtonMy';
 import {useChat} from '../Context/Context';
+import DocumentPicker from 'react-native-document-picker';
 
 const DirectChat = ({route, navigation}) => {
   const {chatType, userId: chatId, chatName: chatName} = route.params;
@@ -30,6 +30,7 @@ const DirectChat = ({route, navigation}) => {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [isUploadingLocation, setIsUploadingLocation] = useState(false);
+  const [isUploadingDocument, setIsUploadingDocument] = useState(false);
 
   const {currentChat} = useChat();
   const currentUserId = auth.currentUser.uid;
@@ -38,12 +39,19 @@ const DirectChat = ({route, navigation}) => {
 
   const flatListRef = useRef(null);
 
+  const audioCallhandler = () => {
+    navigation.navigate('AudioCall', {
+      chatId: chatId,
+      chatName: chatName,
+    });
+  };
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: chatName,
       headerRight: () => (
         <View style={{flexDirection: 'row'}}>
-          <Pressable>
+          <Pressable onPress={audioCallhandler}>
             <Icon1
               name="phone"
               size={24}
@@ -173,6 +181,12 @@ const DirectChat = ({route, navigation}) => {
   const sendImage = async () => {
     setIsUploadingImage(true);
     PickImage(async image => {
+      if (!image) {
+        // Check if the callback was invoked with null.
+        console.log('Image selection was cancelled or failed');
+        setIsUploadingImage(false);
+        return; // Exit the function early.
+      }
       try {
         const imageUrl = await uploadImage(image);
         await saveImageUrl(chatId, imageUrl);
@@ -188,6 +202,12 @@ const DirectChat = ({route, navigation}) => {
   const sendVideo = async () => {
     setIsUploadingVideo(true);
     PickVideo(async video => {
+      if (!Video) {
+        // Check if the callback was invoked with null.
+        console.log('Image selection was cancelled or failed');
+        setIsUploadingVideo(false);
+        return; // Exit the function early.
+      }
       try {
         const videoUrl = await uploadVideo(video);
         await saveVideoUrl(chatId, videoUrl);
@@ -198,6 +218,43 @@ const DirectChat = ({route, navigation}) => {
         setIsUploadingVideo(false);
       }
     });
+  };
+
+  const saveDocumentUrl = async (chatId, documentUrl, documentName) => {
+    const messagesRef = ref(database, `${chatType}/${chatId}/messages`);
+    await push(messagesRef, {
+      document: documentUrl,
+      documentName: documentName,
+      timestamp: Date.now(),
+      userId: auth.currentUser.uid,
+      email: auth.currentUser.email,
+      name: auth.currentUser.displayName,
+      recipientId: chatId,
+    });
+  };
+  const sendDocument = async () => {
+    try {
+      setIsUploadingDocument(true);
+      const res = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.allFiles],
+      });
+      if (!res) {
+        console.log('Document selection was cancelled or failed');
+        setIsUploadingDocument(false);
+        return;
+      }
+      const documentUrl = await uploadDocument(res);
+      await saveDocumentUrl(chatId, documentUrl, res.name);
+      Alert.alert('Document sent', 'Document sent successfully');
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('User cancelled document picker');
+      } else {
+        Alert.alert('Error', err.message);
+      }
+    } finally {
+      setIsUploadingDocument(false);
+    }
   };
 
   const sendLocationMessage = async () => {
@@ -263,6 +320,16 @@ const DirectChat = ({route, navigation}) => {
                 resizeMode="contain"
               />
             ) : null}
+            {item.document ? (
+              <Pressable
+                onPress={() => {
+                  Alert.alert('Open Document', item.document);
+                }}>
+                <Text style={{color: 'blue', textDecorationLine: 'underline'}}>
+                  {item.documentName}
+                </Text>
+              </Pressable>
+            ) : null}
             {item.type === 'location' && (
               <MapView
                 style={{width: 200, height: 200}}
@@ -303,6 +370,11 @@ const DirectChat = ({route, navigation}) => {
             onPress={sendVideo}
             icon={isUploadingVideo ? 'spinner' : 'film'}
             disabled={!!isUploadingVideo}
+          />
+          <ButtonMy
+            onPress={sendDocument}
+            icon={isUploadingDocument ? 'spinner' : 'file'}
+            disabled={!!isUploadingDocument}
           />
         </View>
         <View

@@ -1,18 +1,29 @@
 import {Pressable, StyleSheet, TextInput, Text, View} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {auth} from '../../firebase/firebase';
 import {signInWithEmailAndPassword} from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useChat} from '../Context/Context';
+import {firebase} from '@react-native-firebase/messaging';
 
 const Login = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const {setCurrentUser} = useChat();
+  const [userToken, setUserToken] = useState(null);
 
   function handleRegister() {
     return navigation.navigate('Register');
   }
+
+  useEffect(() => {
+    async function getToken() {
+      const token = await firebase.messaging().getToken();
+      setUserToken(token);
+    }
+    getToken();
+    console.log('User token:', userToken);
+  }, []);
 
   function handleLogin() {
     console.log('auth', JSON.stringify(auth, 2, 0));
@@ -21,6 +32,7 @@ const Login = ({navigation}) => {
         const user = userCredential.user;
         // console.log('user', user);
         await AsyncStorage.setItem('user', JSON.stringify(user));
+        await AsyncStorage.setItem('userToken', userToken);
         await setCurrentUser(user);
         navigation.replace('MyTabs');
       })

@@ -363,6 +363,7 @@ const Register = ({navigation}) => {
           name: displayName,
           phnNo: phoneNumber,
           photoURL: imageUri,
+          token: userToken,
         });
         setCurrentUser(user);
         navigation.dispatch(

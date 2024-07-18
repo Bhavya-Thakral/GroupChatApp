@@ -16,6 +16,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import DirectChat from './src/screens/DirectChat';
 import messaging from '@react-native-firebase/messaging';
 import {ChatProvider} from './src/Context/Context';
+import AudioCall from './src/screens/AudioCall';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -129,6 +130,13 @@ const App = () => {
           <Stack.Screen
             name="DirectChat"
             component={DirectChat}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="AudioCall"
+            component={AudioCall}
             options={{
               headerShown: true,
             }}
