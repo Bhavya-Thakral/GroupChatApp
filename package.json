@@ -20,10 +20,11 @@
     "@react-native-firebase/messaging": "^20.2.0",
     "@react-native-firebase/storage": "^20.2.0",
     "@react-navigation/bottom-tabs": "^6.6.0",
-    "@react-navigation/native": "^6.1.17",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/native-stack": "^6.10.1",
     "@react-navigation/stack": "^6.3.29",
-    "@zegocloud/zego-uikit-prebuilt-call-rn": "^5.6.0",
-    "@zegocloud/zego-uikit-rn": "^2.12.0",
+    "@zegocloud/zego-uikit-prebuilt-call-rn": "^5.8.0",
+    "@zegocloud/zego-uikit-rn": "^2.13.0",
     "date-fns": "^3.6.0",
     "firebase": "^10.12.3",
     "react": "18.2.0",
@@ -44,7 +45,9 @@
     "react-native-vector-icons": "^10.1.0",
     "react-native-video": "^6.3.0",
     "react-native-webrtc": "^124.0.3",
-    "zego-express-engine-reactnative": "^3.14.5"
+    "zego-express-engine-reactnative": "^3.14.5",
+    "zego-zim-react-native": "^2.12.1",
+    "zego-zpns-react-native": "^2.5.2-alpha"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

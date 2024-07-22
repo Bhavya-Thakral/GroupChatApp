@@ -14,9 +14,14 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import OneList from './src/screens/OneList';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DirectChat from './src/screens/DirectChat';
-import messaging from '@react-native-firebase/messaging';
 import {ChatProvider} from './src/Context/Context';
 import AudioCall from './src/screens/AudioCall';
+import {
+  ZegoCallInvitationDialog,
+  ZegoUIKitPrebuiltCallWaitingScreen,
+  ZegoUIKitPrebuiltCallInCallScreen,
+  ZegoUIKitPrebuiltCallFloatingMinimizedView,
+} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -87,6 +92,7 @@ const App = () => {
           translucent={true}
           backgroundColor={'transparent'}
         />
+        <ZegoCallInvitationDialog />
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -141,7 +147,20 @@ const App = () => {
               headerShown: true,
             }}
           />
+          <Stack.Screen
+            options={{headerShown: false}}
+            // DO NOT change the name
+            name="ZegoUIKitPrebuiltCallWaitingScreen"
+            component={ZegoUIKitPrebuiltCallWaitingScreen}
+          />
+          <Stack.Screen
+            options={{headerShown: false}}
+            // DO NOT change the name
+            name="ZegoUIKitPrebuiltCallInCallScreen"
+            component={ZegoUIKitPrebuiltCallInCallScreen}
+          />
         </Stack.Navigator>
+        <ZegoUIKitPrebuiltCallFloatingMinimizedView />
       </NavigationContainer>
     </ChatProvider>
   );

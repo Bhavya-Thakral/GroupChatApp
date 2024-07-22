@@ -22,6 +22,9 @@ import MapView, {Marker} from 'react-native-maps';
 import ButtonMy from './ButtonMy';
 import {useChat} from '../Context/Context';
 import DocumentPicker from 'react-native-document-picker';
+import {ZegoSendCallInvitationButton} from '@zegocloud/zego-uikit-prebuilt-call-rn';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DirectChat = ({route, navigation}) => {
   const {chatType, userId: chatId, chatName: chatName} = route.params;
@@ -32,6 +35,38 @@ const DirectChat = ({route, navigation}) => {
   const [isUploadingLocation, setIsUploadingLocation] = useState(false);
   const [isUploadingDocument, setIsUploadingDocument] = useState(false);
 
+  const [userID, setUserID] = useState('');
+  const [userName, setUserName] = useState('');
+  const [invitees, setInvitees] = useState([]);
+  console.log('invitees', invitees);
+  console.log('userID', userID);
+  console.log('chatId', chatId);
+
+  const getUserInfo = async () => {
+    try {
+      const userID = await AsyncStorage.getItem('userID');
+      const userName = await AsyncStorage.getItem('userName');
+      if (userID == undefined) {
+        return undefined;
+      } else {
+        return {userID, userName};
+      }
+    } catch (e) {
+      return undefined;
+    }
+  };
+
+  useEffect(() => {
+    getUserInfo().then(info => {
+      if (info) {
+        setUserID(info.userID);
+        setUserName(info.userName);
+        onUserLogin(info.userID, info.userName, props);
+        setInvitees([chatId]);
+      }
+    });
+  }, []);
+
   const {currentChat} = useChat();
   const currentUserId = auth.currentUser.uid;
 
@@ -39,19 +74,12 @@ const DirectChat = ({route, navigation}) => {
 
   const flatListRef = useRef(null);
 
-  const audioCallhandler = () => {
-    navigation.navigate('AudioCall', {
-      chatId: chatId,
-      chatName: chatName,
-    });
-  };
-
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: chatName,
       headerRight: () => (
         <View style={{flexDirection: 'row'}}>
-          <Pressable onPress={audioCallhandler}>
+          {/* <Pressable onPress={audioCallhandler}>
             <Icon1
               name="phone"
               size={24}
@@ -66,7 +94,19 @@ const DirectChat = ({route, navigation}) => {
               color={'#131313'}
               style={{marginRight: 20}}
             />
-          </Pressable>
+          </Pressable> */}
+          <ZegoSendCallInvitationButton
+            invitees={invitees.map(inviteeID => {
+              return {userID: inviteeID};
+            })}
+            isVideoCall={false}
+          />
+          <ZegoSendCallInvitationButton
+            invitees={invitees.map(inviteeID => {
+              return {userID: inviteeID};
+            })}
+            isVideoCall={true}
+          />
         </View>
       ),
       headerLeft: () => {
@@ -354,6 +394,7 @@ const DirectChat = ({route, navigation}) => {
         )}
         inverted={true}
       />
+
       <View style={{width: '100%', alignItems: 'center', gap: 15}}>
         <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
           <ButtonMy

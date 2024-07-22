@@ -13,6 +13,7 @@ const OneList = ({navigation}) => {
   const user = auth.currentUser;
   const {setCurrentChat} = useChat();
   // console.log('currentUser in one', currentUser);
+
   useEffect(() => {
     const usersRef = ref(database, 'users');
     onValue(usersRef, snapshot => {
@@ -27,6 +28,7 @@ const OneList = ({navigation}) => {
       }
       setUsers(usersArray);
     });
+    console.log();
   }, [user]);
   // console.log('user', user);
 

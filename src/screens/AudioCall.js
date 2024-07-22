@@ -1,13 +1,23 @@
 import {StyleSheet, View} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   ZegoUIKitPrebuiltCall,
   ONE_ON_ONE_VIDEO_CALL_CONFIG,
   ONE_ON_ONE_VOICE_CALL_CONFIG,
+  ZegoSendCallInvitationButton,
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
 
 const AudioCall = props => {
   const {chatId: userID, chatName: userName} = props.route.params;
+
+  // useEffect(() => {
+  //   <ZegoSendCallInvitationButton
+  //     invitees={[{userID: userID, userName: userName}]}
+  //     isVideoCall={false}
+  //     resourceID={'Group_Chat'} // Please fill in the resource ID name that has been configured in the ZEGOCLOUD's console here.
+  //   />;
+  // }, []);
+
   return (
     <View style={styles.container}>
       <ZegoUIKitPrebuiltCall
