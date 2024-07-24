@@ -10,7 +10,7 @@ import {
   Pressable,
 } from 'react-native';
 import {auth, database} from '../../firebase/firebase';
-import {ref, onValue, push} from 'firebase/database';
+import {ref, onValue, push, get} from 'firebase/database';
 import {format, isToday, isYesterday} from 'date-fns';
 import {PickImage, PickVideo, uploadDocument} from './PickImage';
 import {uploadImage, uploadVideo} from './StoreToFirebase';
@@ -37,7 +37,7 @@ const DirectChat = ({route, navigation}) => {
 
   const [userID, setUserID] = useState('');
   const [userName, setUserName] = useState('');
-  const [invitees, setInvitees] = useState([]);
+  const [invitees, setInvitees] = useState([chatId]);
   console.log('invitees', invitees);
   console.log('userID', userID);
   console.log('chatId', chatId);
@@ -46,7 +46,7 @@ const DirectChat = ({route, navigation}) => {
     try {
       const userID = await AsyncStorage.getItem('userID');
       const userName = await AsyncStorage.getItem('userName');
-      if (userID == undefined) {
+      if (!userID || !userName) {
         return undefined;
       } else {
         return {userID, userName};
@@ -57,16 +57,46 @@ const DirectChat = ({route, navigation}) => {
   };
 
   useEffect(() => {
-    setInvitees([chatId]);
     getUserInfo().then(info => {
       if (info) {
         setUserID(info.userID);
         setUserName(info.userName);
-        onUserLogin(info.userID, info.userName, props);
-        setInvitees([chatId]);
       }
     });
-  }, [chatId]);
+  }, []);
+
+  useEffect(() => {
+    const updateInvitees = async chatId => {
+      if (chatType === 'groups') {
+        console.log('Fetching group members...');
+        const groupMembersRef = ref(database, `groups/${chatId}/members`);
+        const snapshot = await get(groupMembersRef);
+
+        if (snapshot.exists()) {
+          const members = snapshot.val();
+          console.log('Group members:', members);
+
+          const inviteeList = Object.keys(members).map(memberId => ({
+            userID: memberId,
+            userName: members[memberId].name || 'Unknown',
+          }));
+
+          console.log('Invitee list:', inviteeList);
+          setInvitees(inviteeList);
+        } else {
+          console.log('No group members found.');
+          setInvitees([]);
+        }
+      } else {
+        // For non-group chats, set invitees with a single object
+        setInvitees([{userID: chatId, userName: chatName}]);
+      }
+    };
+
+    if (chatId) {
+      updateInvitees(chatId);
+    }
+  }, [chatId, chatType]);
 
   const {currentChat} = useChat();
   const currentUserId = auth.currentUser.uid;
@@ -80,33 +110,25 @@ const DirectChat = ({route, navigation}) => {
       headerTitle: chatName,
       headerRight: () => (
         <View style={{flexDirection: 'row'}}>
-          {/* <Pressable onPress={audioCallhandler}>
-            <Icon1
-              name="phone"
-              size={24}
-              color={'#131313'}
-              style={{marginRight: 20}}
-            />
-          </Pressable>
-          <Pressable>
-            <Icon1
-              name="video-camera"
-              size={24}
-              color={'#131313'}
-              style={{marginRight: 20}}
-            />
-          </Pressable> */}
           <ZegoSendCallInvitationButton
-            invitees={invitees.map(inviteeID => {
-              return {userID: inviteeID};
-            })}
+            invitees={invitees.map(invitee => ({
+              userID: invitee.userID,
+              userName: invitee.userName,
+            }))}
             isVideoCall={false}
+            resourceID={'Group_Chat'}
+            onPressed={() => {
+              console.log('voice call pressed');
+              console.log('invitees at calling', invitees);
+            }}
           />
           <ZegoSendCallInvitationButton
-            invitees={invitees.map(inviteeID => {
-              return {userID: inviteeID};
-            })}
+            invitees={invitees.map(invitee => ({
+              userID: invitee.userID,
+              userName: invitee.userName,
+            }))}
             isVideoCall={true}
+            resourceID={'Group_Chat'}
           />
         </View>
       ),
@@ -138,7 +160,7 @@ const DirectChat = ({route, navigation}) => {
         );
       },
     });
-  }, [navigation, chatName]);
+  }, [navigation, chatName, invitees]);
 
   useEffect(() => {
     const messagesRef = ref(database, `${chatType}/${chatId}/messages`);

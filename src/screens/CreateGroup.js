@@ -40,7 +40,7 @@ const CreateGroup = ({navigation}) => {
       }
 
       // Navigate to the group chat screen with the new group ID
-      navigation.navigate('DirectChat', {
+      navigation.navigate('ChatList', {
         chatType: 'groups',
         groupId: newGroupRef.key,
         chatName: groupName,

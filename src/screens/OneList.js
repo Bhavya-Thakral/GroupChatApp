@@ -7,12 +7,15 @@ import {onValue, ref} from 'firebase/database';
 import {signOut} from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useChat} from '../Context/Context';
+import ZegoUIKitPrebuiltCallService from '@zegocloud/zego-uikit-prebuilt-call-rn';
+import * as ZIM from 'zego-zim-react-native';
+import * as ZPNs from 'zego-zpns-react-native';
 
 const OneList = ({navigation}) => {
   const [users, setUsers] = useState([]);
   const user = auth.currentUser;
   const {setCurrentChat} = useChat();
-  // console.log('currentUser in one', currentUser);
+  console.log('currentUser in one', user);
 
   useEffect(() => {
     const usersRef = ref(database, 'users');
@@ -30,6 +33,15 @@ const OneList = ({navigation}) => {
     });
     console.log();
   }, [user]);
+
+  useEffect(() => {
+    onUserLogin(user.uid, user.displayName).then(() => {
+      const id = user.uid;
+      const name = user.displayName;
+      console.log('storing ', id, name);
+      storeUserInfo({id, name});
+    });
+  }, []);
   // console.log('user', user);
 
   async function logoutHandler() {
@@ -41,36 +53,6 @@ const OneList = ({navigation}) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: user.displayName || 'Chat',
-      // headerRight: () => {
-      //   return (
-      //     <View style={{flexDirection: 'row'}}>
-      //       <Pressable
-      //         //   onPress={createHandler}
-      //         style={({pressed}) => {
-      //           pressed && styles.press;
-      //         }}>
-      //         <Icon
-      //           name="adduser"
-      //           size={20}
-      //           color={'#131313'}
-      //           style={{marginRight: 20}}
-      //         />
-      //       </Pressable>
-      //       <Pressable
-      //         onPress={logoutHandler}
-      //         style={({pressed}) => {
-      //           pressed && styles.press;
-      //         }}>
-      //         <Icon
-      //           name="logout"
-      //           size={20}
-      //           color={'#131313'}
-      //           style={{marginRight: 20}}
-      //         />
-      //       </Pressable>
-      //     </View>
-      //   );
-      // },
       headerLeft: () => {
         return (
           user?.photoURL && (
@@ -85,14 +67,37 @@ const OneList = ({navigation}) => {
               }}
             />
           )
-          // <Image
-          //   source={user?.photoURL}
-          //   style={{width: 20, height: 20, borderRadius: 10}}
-          // />
         );
       },
     });
   }, []);
+
+  const storeUserInfo = async info => {
+    await AsyncStorage.setItem('userID', info.id);
+    await AsyncStorage.setItem('userName', info.name);
+    console.log('setting user id', info.id);
+  };
+
+  const onUserLogin = async (userID, userName) => {
+    return ZegoUIKitPrebuiltCallService.init(
+      97492,
+      'e930226544e43d2a3b39fc6c0721dfcf7f1f26c6b5f7a258a223f57ba5220e67',
+      userID,
+      userName,
+      [ZIM, ZPNs],
+      // notifyWhenAppRunningInBackgroundOrQuit,
+      {
+        ringtoneConfig: {
+          incomingCallFileName: 'zego_incoming.mp3',
+          outgoingCallFileName: 'zego_outgoing.mp3',
+        },
+        androidNotificationConfig: {
+          channelID: 'ZegoUIKit',
+          channelName: 'ZegoUIKit',
+        },
+      },
+    );
+  };
 
   function onSelectedChat(item) {
     setCurrentChat(item);

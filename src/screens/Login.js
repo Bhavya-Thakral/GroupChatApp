@@ -8,6 +8,7 @@ import messaging from '@react-native-firebase/messaging';
 
 import ZegoUIKitPrebuiltCallService from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import * as ZIM from 'zego-zim-react-native';
+import * as ZPNs from 'zego-zpns-react-native';
 
 const Login = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -23,13 +24,14 @@ const Login = ({navigation}) => {
     async function getToken() {
       const token = await messaging().getToken();
       setUserToken(token);
+      console.log('User token:', token);
     }
-    console.log('chahiye user token');
-    console.log('User token:', userToken);
-    console.log('mila token');
+
     getToken();
+
     return messaging().onTokenRefresh(token => {
       console.log('New FCM Token:', token);
+      setUserToken(token);
     });
   }, []);
 
@@ -42,9 +44,10 @@ const Login = ({navigation}) => {
         await AsyncStorage.setItem('user', JSON.stringify(user));
         await AsyncStorage.setItem('userToken', userToken);
         await setCurrentUser(user);
-        onUserLogin(user.uid, user.displayName).then(() => {
+        await onUserLogin(user.uid, user.displayName).then(() => {
           const id = user.uid;
           const name = user.displayName;
+          console.log('storing ', id, name);
           storeUserInfo({id, name});
           navigation.replace('MyTabs');
         });
@@ -56,25 +59,35 @@ const Login = ({navigation}) => {
   }
 
   const storeUserInfo = async info => {
-    await AsyncStorage.setItem('userID', info.userID);
-    await AsyncStorage.setItem('userName', info.userName);
-    console.log('setting user id', info.userID);
+    try {
+      await AsyncStorage.setItem('userID', info.id);
+      await AsyncStorage.setItem('userName', info.name);
+      console.log('User info stored:', info.id, info.name);
+    } catch (e) {
+      console.error('Failed to store user info', e);
+    }
   };
 
   const onUserLogin = async (userID, userName) => {
+    console.log('userId', userID);
+    console.log('userName', userName);
     return ZegoUIKitPrebuiltCallService.init(
       97492,
       'e930226544e43d2a3b39fc6c0721dfcf7f1f26c6b5f7a258a223f57ba5220e67',
       userID,
       userName,
-      [ZIM],
-      notifyWhenAppRunningInBackgroundOrQuit,
-      //   {
-      //     ringtoneConfig: {
-      //       incomingCallFileName: 'zego_incoming.mp3',
-      //       outgoingCallFileName: 'zego_outgoing.mp3',
-      //     },
-      //   },
+      [ZIM, ZPNs],
+      {
+        ringtoneConfig: {
+          incomingCallFileName: 'zego_incoming.mp3',
+          outgoingCallFileName: 'zego_outgoing.mp3',
+        },
+        androidNotificationConfig: {
+          channelID: 'ZegoUIKit',
+          channelName: 'ZegoUIKit',
+        },
+        notifyWhenAppRunningInBackgroundOrQuit: true,
+      },
     );
   };
 
