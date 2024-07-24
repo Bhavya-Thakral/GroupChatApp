@@ -57,6 +57,7 @@ const DirectChat = ({route, navigation}) => {
   };
 
   useEffect(() => {
+    setInvitees([chatId]);
     getUserInfo().then(info => {
       if (info) {
         setUserID(info.userID);
@@ -65,7 +66,7 @@ const DirectChat = ({route, navigation}) => {
         setInvitees([chatId]);
       }
     });
-  }, []);
+  }, [chatId]);
 
   const {currentChat} = useChat();
   const currentUserId = auth.currentUser.uid;

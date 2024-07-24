@@ -68,6 +68,7 @@ const Login = ({navigation}) => {
       userID,
       userName,
       [ZIM],
+      notifyWhenAppRunningInBackgroundOrQuit,
       //   {
       //     ringtoneConfig: {
       //       incomingCallFileName: 'zego_incoming.mp3',
