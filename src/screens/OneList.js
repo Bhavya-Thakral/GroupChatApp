@@ -1,5 +1,6 @@
 import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
+import Icon1 from 'react-native-vector-icons/FontAwesome6';
 import React, {useEffect, useLayoutEffect, useState} from 'react';
 import {FlatList} from 'react-native-gesture-handler';
 import {auth, database} from '../../firebase/firebase';
@@ -10,6 +11,7 @@ import {useChat} from '../Context/Context';
 import ZegoUIKitPrebuiltCallService from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import * as ZIM from 'zego-zim-react-native';
 import * as ZPNs from 'zego-zpns-react-native';
+import {add} from 'date-fns';
 
 const OneList = ({navigation}) => {
   const [users, setUsers] = useState([]);
@@ -52,21 +54,21 @@ const OneList = ({navigation}) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: user.displayName || 'Chat',
-      headerLeft: () => {
+      headerTitle: 'Chat App',
+      headerRight: () => {
         return (
-          user?.photoURL && (
-            <Image
-              source={{uri: user?.photoURL}}
-              style={{
-                width: 50,
-                height: 50,
-                borderRadius: 25,
-                marginLeft: 10,
-                backgroundColor: 'lightgrey',
-              }}
+          <Pressable
+            // onPress={addUserHandler}
+            style={({pressed}) => {
+              pressed && styles.press;
+            }}>
+            <Icon1
+              name="plus"
+              size={20}
+              color={'#fff'}
+              style={{marginRight: 40}}
             />
-          )
+          </Pressable>
         );
       },
     });

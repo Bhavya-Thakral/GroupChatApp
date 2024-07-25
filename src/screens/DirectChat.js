@@ -12,14 +12,14 @@ import {
 import {auth, database} from '../../firebase/firebase';
 import {ref, onValue, push, get} from 'firebase/database';
 import {format, isToday, isYesterday} from 'date-fns';
-import {PickImage, PickVideo, uploadDocument} from './PickImage';
-import {uploadImage, uploadVideo} from './StoreToFirebase';
+import {PickImage, PickVideo, uploadDocument} from '../extras/PickImage';
+import {uploadImage, uploadVideo} from '../extras/StoreToFirebase';
 import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Icon1 from 'react-native-vector-icons/FontAwesome';
-import {getCurrentLocation} from './LocationHelper';
+import {getCurrentLocation} from '../extras/LocationHelper';
 import MapView, {Marker} from 'react-native-maps';
-import ButtonMy from './ButtonMy';
+import ButtonMy from '../extras/ButtonMy';
 import {useChat} from '../Context/Context';
 import DocumentPicker from 'react-native-document-picker';
 import {ZegoSendCallInvitationButton} from '@zegocloud/zego-uikit-prebuilt-call-rn';

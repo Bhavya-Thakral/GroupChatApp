@@ -13,9 +13,19 @@ import PhoneSignIn from './src/screens/PhoneSignIn';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import OneList from './src/screens/OneList';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon1 from 'react-native-vector-icons/AntDesign';
 import DirectChat from './src/screens/DirectChat';
+import Settings from './src/screens/Settings';
+import Search from './src/screens/Search';
+import CallHistory from './src/screens/CallHistory';
+import Account from './src/screens/userSetting/Account';
+import Help from './src/screens/userSetting/Help';
+import Language from './src/screens/userSetting/Language';
+import Privacy from './src/screens/userSetting/Privacy';
+import Profile from './src/screens/userSetting/Profile';
+
 import {ChatProvider} from './src/Context/Context';
-import AudioCall from './src/screens/AudioCall';
+import AudioCall from './src/extras/AudioCall';
 import {
   ZegoCallInvitationDialog,
   ZegoUIKitPrebuiltCallWaitingScreen,
@@ -54,7 +64,14 @@ const App = () => {
 
   function MyTabs() {
     return (
-      <Tab.Navigator initialRouteName="OneList">
+      <Tab.Navigator
+        initialRouteName="OneList"
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#185389',
+          },
+          headerTintColor: '#fff',
+        }}>
         <Tab.Screen
           name="OneList"
           component={OneList}
@@ -77,6 +94,39 @@ const App = () => {
             tabBarLabel: 'Groups',
           }}
         />
+        <Tab.Screen
+          name="Search"
+          component={Search}
+          options={{
+            tabBarIcon: ({size, color}) => {
+              return <Icon name="search" size={size} color={color} />;
+            },
+            title: 'Search',
+            tabBarLabel: 'Search',
+          }}
+        />
+        <Tab.Screen
+          name="Calls"
+          component={CallHistory}
+          options={{
+            tabBarIcon: ({size, color}) => {
+              return <Icon name="phone" size={size} color={color} />;
+            },
+            title: 'Calls',
+            tabBarLabel: 'Calls',
+          }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={Settings}
+          options={{
+            tabBarIcon: ({size, color}) => {
+              return <Icon name="cog" size={size} color={color} />;
+            },
+            title: 'Settings',
+            tabBarLabel: 'Settings',
+          }}
+        />
       </Tab.Navigator>
     );
   }
@@ -88,7 +138,7 @@ const App = () => {
           routes: [{name: initialRoute}],
         }}>
         <StatusBar
-          barStyle={'dark-content'}
+          barStyle={'light-content'}
           translucent={true}
           backgroundColor={'transparent'}
         />
@@ -96,12 +146,19 @@ const App = () => {
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
+            headerStyle: {
+              backgroundColor: '#185389',
+            },
+            headerTintColor: '#fff',
           }}>
           <Stack.Screen
             name="Login"
             component={Login}
             options={{
               headerShown: true,
+              headerBackgroundContainerStyle: {
+                backgroundColor: '#185389',
+              },
             }}
           />
           <Stack.Screen
@@ -158,6 +215,41 @@ const App = () => {
             // DO NOT change the name
             name="ZegoUIKitPrebuiltCallInCallScreen"
             component={ZegoUIKitPrebuiltCallInCallScreen}
+          />
+          <Stack.Screen
+            name="Account"
+            component={Account}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="Privacy"
+            component={Privacy}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="Help"
+            component={Help}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="Language"
+            component={Language}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="Profile"
+            component={Profile}
+            options={{
+              headerShown: true,
+            }}
           />
         </Stack.Navigator>
         <ZegoUIKitPrebuiltCallFloatingMinimizedView />

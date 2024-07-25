@@ -48,37 +48,37 @@ const ChatList = ({navigation}) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: `${currentUser?.displayName}'s Groups` || 'Groups',
-      headerRight: () => {
-        return (
-          <View style={{flexDirection: 'row'}}>
-            <Pressable
-              onPress={createHandler}
-              style={({pressed}) => {
-                pressed && styles.press;
-              }}>
-              <Icon
-                name="addusergroup"
-                size={20}
-                color={'#131313'}
-                style={{marginRight: 20}}
-              />
-            </Pressable>
-            <Pressable
-              onPress={logoutHandler}
-              style={({pressed}) => {
-                pressed && styles.press;
-              }}>
-              <Icon
-                name="logout"
-                size={20}
-                color={'#131313'}
-                style={{marginRight: 20}}
-              />
-            </Pressable>
-          </View>
-        );
-      },
+      headerTitle: 'Groups',
+      // headerRight: () => {
+      //   return (
+      //     <View style={{flexDirection: 'row'}}>
+      //       <Pressable
+      //         onPress={createHandler}
+      //         style={({pressed}) => {
+      //           pressed && styles.press;
+      //         }}>
+      //         <Icon
+      //           name="addusergroup"
+      //           size={20}
+      //           color={'#131313'}
+      //           style={{marginRight: 20}}
+      //         />
+      //       </Pressable>
+      //       <Pressable
+      //         onPress={logoutHandler}
+      //         style={({pressed}) => {
+      //           pressed && styles.press;
+      //         }}>
+      //         <Icon
+      //           name="logout"
+      //           size={20}
+      //           color={'#131313'}
+      //           style={{marginRight: 20}}
+      //         />
+      //       </Pressable>
+      //     </View>
+      //   );
+      // },
     });
   }, []);
 
