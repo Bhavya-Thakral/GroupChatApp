@@ -1,9 +1,15 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {Image} from 'react-native';
-
+import {signOut} from 'firebase/auth';
+import Dialog from '../extras/Dialog';
+import {auth} from '../../firebase/firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ZegoUIKitPrebuiltCallService from '@zegocloud/zego-uikit-prebuilt-call-rn';
 const Settings = ({navigation}) => {
+  const [dialogVisible, setDialogVisible] = useState(false);
+
   const user = [
     {
       img: require('../../public/assets/images/account.png'),
@@ -40,12 +46,27 @@ const Settings = ({navigation}) => {
     },
   ];
 
-  async function logoutHandler() {
+  const showDialog = () => {
+    setDialogVisible(true);
+  };
+
+  const hideDialog = () => {
+    setDialogVisible(false);
+  };
+
+  const handleConfirm = async () => {
+    // Handle the confirmation action here
     await signOut(auth);
     await AsyncStorage.removeItem('user');
     await AsyncStorage.removeItem('userToken');
     await ZegoUIKitPrebuiltCallService.uninit();
     navigation.replace('Login');
+    console.log('Confirmed');
+    hideDialog();
+  };
+
+  async function logoutHandler() {
+    showDialog();
   }
 
   return (
@@ -91,6 +112,13 @@ const Settings = ({navigation}) => {
           })}
         </View>
       </View>
+      <Dialog
+        visible={dialogVisible}
+        onClose={hideDialog}
+        title="Logout"
+        message="Are you sure you want to logout?"
+        onConfirm={handleConfirm}
+      />
     </View>
   );
 };

@@ -11,7 +11,6 @@ import {useChat} from '../Context/Context';
 import ZegoUIKitPrebuiltCallService from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import * as ZIM from 'zego-zim-react-native';
 import * as ZPNs from 'zego-zpns-react-native';
-import {add} from 'date-fns';
 
 const OneList = ({navigation}) => {
   const [users, setUsers] = useState([]);
@@ -113,30 +112,25 @@ const OneList = ({navigation}) => {
   const renderItem = ({item}) => {
     return (
       <Pressable
-        style={styles.viewChat}
+        style={[styles.viewChat, styles.search]}
         onPress={onSelectedChat.bind(this, item)}>
         <>
           {item.photoURL ? (
-            <Image
-              source={{uri: item.photoURL}}
-              style={{width: 50, height: 50, borderRadius: 25, marginRight: 10}}
-            />
+            <Image source={{uri: item.photoURL}} style={styles.img} />
           ) : (
             <View
-              style={{
-                width: 50,
-                height: 50,
-                borderWidth: 1,
-                borderRadius: 25,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: 10,
-              }}>
+              style={[
+                styles.img,
+                {alignItems: 'center', justifyContent: 'center'},
+              ]}>
               <Icon name="user" size={20} color={'#131313'} />
             </View>
           )}
-
-          <Text style={styles.head}>{item.name}</Text>
+          <View style={{flex: 1}}>
+            <Text style={styles.text}>{item.name}</Text>
+            <Text style={[styles.msg, {color: '#787878'}]}>Recent msg</Text>
+          </View>
+          <Text style={{color: '#9EA4AA'}}>1:20pm</Text>
         </>
       </Pressable>
     );
@@ -144,11 +138,20 @@ const OneList = ({navigation}) => {
 
   return (
     <View style={styles.main}>
-      <FlatList
-        data={users}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-      />
+      <View style={styles.container}>
+        <View
+          style={({pressed}) => [
+            styles.searchContainer,
+            pressed && {backgroundColor: '#D0E3FF'},
+            selectedUsers.includes(item.id) && {backgroundColor: '#D0E3FF'},
+          ]}>
+          <FlatList
+            data={users}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
+          />
+        </View>
+      </View>
     </View>
   );
 };
@@ -158,20 +161,78 @@ export default OneList;
 const styles = StyleSheet.create({
   viewChat: {
     padding: 10,
-    borderWidth: 1,
-    borderColor: '#131313',
-    backgroundColor: 'lightgrey',
+
     marginVertical: 5,
     marginHorizontal: 10,
     borderRadius: 7,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  head: {
-    color: '#131313',
-    fontSize: 18,
-  },
   main: {
-    marginVertical: 10,
+    flex: 1,
+    backgroundColor: '#185389',
+  },
+  container: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    flex: 1,
+    overflow: 'hidden',
+  },
+  input: {
+    color: '#26282B',
+    fontSize: 16,
+  },
+  icon: {
+    margin: 10,
+    alignSelf: 'center',
+  },
+  textContainer: {
+    borderWidth: 1,
+    borderColor: '#E8EBED',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    borderRadius: 25,
+    margin: 10,
+    marginTop: 20,
+    height: 50,
+    width: '90%',
+  },
+  searchContainer: {
+    // marginTop: 20,
+    padding: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  img: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+    resizeMode: 'cover',
+    borderWidth: 1,
+    borderColor: '#9EA4AA',
+  },
+  search: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8EBED',
+    marginHorizontal: 15,
+  },
+  text: {
+    color: '#26282B',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  name: {
+    flex: 1,
+  },
+  msg: {
+    color: '#26282B',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

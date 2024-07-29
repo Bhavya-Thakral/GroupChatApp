@@ -41,6 +41,7 @@ const DirectChat = ({route, navigation}) => {
   console.log('invitees', invitees);
   console.log('userID', userID);
   console.log('chatId', chatId);
+  console.log('messages', messages);
 
   const getUserInfo = async () => {
     try {
@@ -347,116 +348,167 @@ const DirectChat = ({route, navigation}) => {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={item => item.id}
-        renderItem={({item}) => (
-          <View
-            style={[
-              styles.messageContainer,
-              item.senderId === currentUserId || item.userId === currentUserId
-                ? styles.myMessage
-                : styles.theirMessage,
-            ]}>
-            {item.senderId !== currentUserId &&
-              item.userId !== currentUserId &&
-              chatType === 'groups' && (
-                <Text style={{color: 'black'}}>{item.name || item.email}</Text>
-              )}
-
-            {item.text ? (
-              <Text style={{fontSize: 18, color: 'black'}}>{item.text}</Text>
-            ) : null}
-            {item.img ? (
-              <Image source={{uri: item.img}} style={styles.img} />
-            ) : null}
-            {item.video ? (
-              <Video
-                source={{uri: item.video}}
-                style={styles.img}
-                paused={true}
-                controls={true}
-                resizeMode="contain"
-              />
-            ) : null}
-            {item.document ? (
-              <Pressable
-                onPress={() => {
-                  Alert.alert('Open Document', item.document);
-                }}>
-                <Text style={{color: 'blue', textDecorationLine: 'underline'}}>
-                  {item.documentName}
+  const renderItem = ({item}) => {
+    return (
+      <View style={styles.msgContainer}>
+        <View
+          style={[
+            item.senderId === currentUserId || item.userId === currentUserId
+              ? {
+                  flexDirection: 'row-reverse',
+                  gap: 5,
+                }
+              : {
+                  flexDirection: 'row',
+                },
+          ]}>
+          <Image
+            source={{
+              uri: 'https://images.pexels.com/photos/1898555/pexels-photo-1898555.jpeg',
+            }}
+            style={styles.img}
+          />
+          <View style={{flexDirection: 'column'}}>
+            <View
+              style={[
+                item.senderId === currentUserId || item.userId === currentUserId
+                  ? styles.myMessage
+                  : styles.theirMessage,
+              ]}>
+              {item.senderId !== currentUserId &&
+                item.userId !== currentUserId &&
+                chatType === 'groups' && (
+                  <Text style={{color: 'black'}}>
+                    {item.name || item.email}
+                  </Text>
+                )}
+              {item.text ? (
+                <Text
+                  style={[
+                    {fontSize: 18},
+                    item.senderId === currentUserId ||
+                    item.userId === currentUserId
+                      ? {color: 'white'}
+                      : {color: 'black'},
+                  ]}>
+                  {item.text}
                 </Text>
-              </Pressable>
-            ) : null}
-            {item.type === 'location' && (
-              <MapView
-                style={{width: 200, height: 200}}
-                initialRegion={{
-                  latitude: item.location.latitude,
-                  longitude: item.location.longitude,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                }}>
-                <Marker
-                  coordinate={{
+              ) : null}
+              {item.img ? (
+                <Image source={{uri: item.img}} style={styles.img} />
+              ) : null}
+              {item.video ? (
+                <Video
+                  source={{uri: item.video}}
+                  style={styles.img}
+                  paused={true}
+                  controls={true}
+                  resizeMode="contain"
+                />
+              ) : null}
+              {item.document ? (
+                <Pressable
+                  onPress={() => {
+                    Alert.alert('Open Document', item.document);
+                  }}>
+                  <Text
+                    style={{color: 'blue', textDecorationLine: 'underline'}}>
+                    {item.documentName}
+                  </Text>
+                </Pressable>
+              ) : null}
+              {item.type === 'location' && (
+                <MapView
+                  style={{width: 200, height: 200}}
+                  initialRegion={{
                     latitude: item.location.latitude,
                     longitude: item.location.longitude,
-                  }}
-                />
-              </MapView>
-            )}
-            <Text style={styles.timestamp}>
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }}>
+                  <Marker
+                    coordinate={{
+                      latitude: item.location.latitude,
+                      longitude: item.location.longitude,
+                    }}
+                  />
+                </MapView>
+              )}
+            </View>
+            <Text
+              style={[
+                styles.timestamp,
+                item.senderId === currentUserId || item.userId === currentUserId
+                  ? {textAlign: 'right'}
+                  : {textAlign: 'left'},
+              ]}>
               {formatTimestamp(item.timestamp)}
             </Text>
           </View>
-        )}
-        inverted={true}
-      />
+        </View>
+      </View>
+    );
+  };
 
-      <View style={{width: '100%', alignItems: 'center', gap: 15}}>
-        <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
-          <ButtonMy
-            onPress={sendLocationMessage}
-            icon={isUploadingLocation ? 'spinner' : 'location-arrow'}
-            disabled={!!isUploadingLocation}
-          />
-          <ButtonMy
-            onPress={sendImage}
-            icon={isUploadingImage ? 'spinner' : 'image'}
-            disabled={!!isUploadingImage}
-          />
-          <ButtonMy
-            onPress={sendVideo}
-            icon={isUploadingVideo ? 'spinner' : 'film'}
-            disabled={!!isUploadingVideo}
-          />
-          <ButtonMy
-            onPress={sendDocument}
-            icon={isUploadingDocument ? 'spinner' : 'file'}
-            disabled={!!isUploadingDocument}
+  function openModal() {
+    console.log('open modal');
+  }
+
+  function openEmoji() {
+    console.log('open emoji');
+  }
+
+  function handleVoice() {
+    console.log('voice');
+  }
+
+  return (
+    <View style={styles.main}>
+      <View style={styles.container}>
+        <View style={styles.searchContainer}>
+          <FlatList
+            data={messages}
+            showsVerticalScrollIndicator={false}
+            ref={flatListRef}
+            renderItem={renderItem}
+            inverted={true}
+            keyExtractor={item => item.id}
           />
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            width: '100%',
-            alignItems: 'center',
-            gap: 10,
-            justifyContent: 'center',
-          }}>
-          <TextInput
-            style={styles.input}
-            value={text}
-            onChangeText={setText}
-            placeholder="Type a message"
-            placeholderTextColor={'#131313'}
+        <View style={styles.sendContainer}>
+          <View style={styles.outerInput}>
+            <Icon
+              name="paperclip"
+              color={'#72787F'}
+              size={20}
+              onPress={openModal}
+            />
+            <Icon1
+              name="smile-o"
+              color={'#72787F'}
+              size={20}
+              onPress={openEmoji}
+            />
+            <TextInput
+              placeholder="Message..."
+              style={{flex: 1}}
+              onChangeText={setText}
+              value={text}
+            />
+            <Icon1
+              name="microphone"
+              color={'#72787F'}
+              size={20}
+              onPress={handleVoice}
+            />
+          </View>
+          <ButtonMy
+            icon="paper-plane"
+            onPress={() => {
+              sendMessage();
+              console.log('pressed');
+            }}
           />
-          <ButtonMy onPress={sendMessage} icon={'arrow-right'} />
         </View>
       </View>
     </View>
@@ -464,43 +516,83 @@ const DirectChat = ({route, navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  main: {
     flex: 1,
-    padding: 16,
+    backgroundColor: '#185389',
   },
-  messageContainer: {
+  container: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    flex: 1,
+    overflow: 'hidden',
+  },
+  searchContainer: {
     padding: 10,
-    marginVertical: 5,
-    borderRadius: 5,
+    flex: 1,
+  },
+  msgContainer: {
+    flex: 1,
+  },
+  msg: {
+    borderRadius: 8,
+    backgroundColor: '#185389',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   myMessage: {
-    backgroundColor: '#e1ffc7',
-    alignSelf: 'flex-end',
+    backgroundColor: '#185389',
+    borderRadius: 8,
+    borderBottomRightRadius: 0,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
   },
   theirMessage: {
-    backgroundColor: 'lightgrey',
-    alignSelf: 'flex-start',
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    // marginBottom: 12,
+    borderRadius: 8,
     paddingHorizontal: 8,
-    width: '60%',
-    flex: 1,
-    borderRadius: 10,
-    color: 'black',
+    borderBottomLeftRadius: 0,
+    paddingVertical: 10,
+    pabackgroundColor: '#9EA4AA33',
   },
   timestamp: {
     fontSize: 12,
-    color: 'grey',
+    color: '#72787F',
     textAlign: 'right',
     marginTop: 5,
+    marginBottom: 10,
+  },
+
+  msgTxt: {
+    fontSize: 14,
+    color: 'white',
+    fontWeight: '400',
+    alignSelf: 'center',
   },
   img: {
-    width: 200,
-    height: 200,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    resizeMode: 'cover',
+    borderWidth: 2,
+    borderColor: '#D0E3FF',
+  },
+  sendContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    gap: 10,
+  },
+  outerInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // justifyContent: 'space-between',
+    borderWidth: 1,
+    flex: 1,
+    borderColor: '#C9CDD2',
+    borderRadius: 8,
+    gap: 7,
+    paddingHorizontal: 10,
   },
 });
 
