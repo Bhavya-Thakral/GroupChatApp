@@ -13,7 +13,12 @@
           "package_name": "com.groupchat"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "235494645211-h8v09j1stc05e871k5fo65gv48iu47ma.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD254mEHMowxreLrCUGC1EIh_AZe5mHpdY"
@@ -21,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "235494645211-h8v09j1stc05e871k5fo65gv48iu47ma.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

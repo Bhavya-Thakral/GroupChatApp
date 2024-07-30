@@ -1,7 +1,9 @@
 import {getApp, getApps, initializeApp} from 'firebase/app';
-import {initializeAuth, getReactNativePersistence} from 'firebase/auth';
+import {getAuth, initializeAuth} from 'firebase/auth';
+import {getReactNativePersistence} from 'firebase/auth';
 import {getDatabase} from 'firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import '@react-native-firebase/messaging';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -22,9 +24,15 @@ if (!getApps().length) {
   app = getApp(); // if already initialized, use that one
 }
 
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+// Initialize Firebase Authentication
+let auth;
+if (!getAuth(app)) {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} else {
+  auth = getAuth(app);
+}
 
 // Initialize Realtime Database
 const database = getDatabase(app);

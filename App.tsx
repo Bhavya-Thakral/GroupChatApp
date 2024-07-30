@@ -2,14 +2,14 @@ import {Pressable, StatusBar, StyleSheet, Text} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import Login from './src/screens/Login';
-import Register from './src/screens/Register';
+import Login from './src/screens/signin/Login';
+import Register from './src/screens/signup/Register';
 import Chat from './src/screens/Chat';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChatList from './src/screens/ChatList';
 import CreateGroup from './src/screens/CreateGroup';
 import {auth} from './firebase/firebase';
-import PhoneSignIn from './src/screens/PhoneSignIn';
+import PhoneSignIn from './src/screens/signup/PhoneSignIn';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import OneList from './src/screens/OneList';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -32,6 +32,7 @@ import {
   ZegoUIKitPrebuiltCallInCallScreen,
   ZegoUIKitPrebuiltCallFloatingMinimizedView,
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
+import Otp from './src/screens/signin/Otp';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -73,14 +74,14 @@ const App = () => {
           headerTintColor: '#fff',
         }}>
         <Tab.Screen
-          name="OneList"
+          name="Home"
           component={OneList}
           options={{
             tabBarIcon: ({size, color}) => {
-              return <Icon name="comment" size={size} color={color} />;
+              return <Icon name="home" size={size} color={color} />;
             },
             tabBarLabel: 'Chats',
-            title: 'Chats',
+            title: 'Home',
           }}
         />
         <Tab.Screen
@@ -155,10 +156,14 @@ const App = () => {
             name="Login"
             component={Login}
             options={{
-              headerShown: true,
-              headerBackgroundContainerStyle: {
-                backgroundColor: '#185389',
-              },
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Otp"
+            component={Otp}
+            options={{
+              headerShown: false,
             }}
           />
           <Stack.Screen
@@ -172,7 +177,7 @@ const App = () => {
             name="Register"
             component={Register}
             options={{
-              headerShown: true,
+              headerShown: false,
             }}
           />
           <Stack.Screen name="MyTabs" component={MyTabs} />

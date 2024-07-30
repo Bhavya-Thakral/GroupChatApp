@@ -8,10 +8,12 @@ import {
   Image,
   Alert,
   Pressable,
+  Button,
+  Modal,
 } from 'react-native';
 import {auth, database} from '../../firebase/firebase';
 import {ref, onValue, push, get} from 'firebase/database';
-import {format, isToday, isYesterday} from 'date-fns';
+import {format, isToday, isYesterday, set} from 'date-fns';
 import {PickImage, PickVideo, uploadDocument} from '../extras/PickImage';
 import {uploadImage, uploadVideo} from '../extras/StoreToFirebase';
 import Video from 'react-native-video';
@@ -25,6 +27,7 @@ import DocumentPicker from 'react-native-document-picker';
 import {ZegoSendCallInvitationButton} from '@zegocloud/zego-uikit-prebuilt-call-rn';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 const DirectChat = ({route, navigation}) => {
   const {chatType, userId: chatId, chatName: chatName} = route.params;
@@ -34,7 +37,7 @@ const DirectChat = ({route, navigation}) => {
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [isUploadingLocation, setIsUploadingLocation] = useState(false);
   const [isUploadingDocument, setIsUploadingDocument] = useState(false);
-
+  const [isModalVisible, setModalVisible] = useState(false);
   const [userID, setUserID] = useState('');
   const [userName, setUserName] = useState('');
   const [invitees, setInvitees] = useState([chatId]);
@@ -42,6 +45,36 @@ const DirectChat = ({route, navigation}) => {
   console.log('userID', userID);
   console.log('chatId', chatId);
   console.log('messages', messages);
+  console.log('modal', isModalVisible);
+
+  const shareOptions = [
+    {
+      id: 1,
+      label: 'Document',
+      icon: '📄',
+      onPress: () => Alert.alert('Document selected'),
+    },
+    {id: 2, label: 'Camera', icon: '📷', onPress: () => console.log('camera')},
+    {
+      id: 3,
+      label: 'Gallery',
+      icon: '🖼️',
+      onPress: () => console.log('Gallery'),
+    },
+    {
+      id: 4,
+      label: 'Audio',
+      icon: '🎵',
+      onPress: () => Alert.alert('Audio selected'),
+    },
+    {id: 5, label: 'Location', icon: '📍', onPress: sendLocationMessage},
+    {
+      id: 6,
+      label: 'Contact',
+      icon: '📇',
+      onPress: () => Alert.alert('Contact selected'),
+    },
+  ];
 
   const getUserInfo = async () => {
     try {
@@ -110,7 +143,21 @@ const DirectChat = ({route, navigation}) => {
     navigation.setOptions({
       headerTitle: chatName,
       headerRight: () => (
-        <View style={{flexDirection: 'row'}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            marginRight: 10,
+            gap: 5,
+            marginBottom: 10,
+          }}>
+          <ZegoSendCallInvitationButton
+            invitees={invitees.map(invitee => ({
+              userID: invitee.userID,
+              userName: invitee.userName,
+            }))}
+            isVideoCall={true}
+            resourceID={'Group_Chat'}
+          />
           <ZegoSendCallInvitationButton
             invitees={invitees.map(invitee => ({
               userID: invitee.userID,
@@ -123,40 +170,64 @@ const DirectChat = ({route, navigation}) => {
               console.log('invitees at calling', invitees);
             }}
           />
-          <ZegoSendCallInvitationButton
-            invitees={invitees.map(invitee => ({
-              userID: invitee.userID,
-              userName: invitee.userName,
-            }))}
-            isVideoCall={true}
-            resourceID={'Group_Chat'}
-          />
         </View>
       ),
       headerLeft: () => {
         return currentChat?.photoURL ? (
-          <Image
-            source={{uri: currentChat?.photoURL}}
+          <View
             style={{
-              width: 50,
-              height: 50,
-              borderRadius: 25,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
               marginLeft: 10,
-              backgroundColor: 'lightgrey',
-            }}
-          />
+              marginBottom: 10,
+            }}>
+            <Icon1
+              name="arrow-left"
+              size={20}
+              color={'#fff'}
+              onPress={() => navigation.goBack()}
+            />
+            <Image
+              source={{uri: currentChat?.photoURL}}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                marginLeft: 10,
+                backgroundColor: 'lightgrey',
+                borderWidth: 1,
+                borderColor: '#fff',
+              }}
+            />
+          </View>
         ) : (
           <View
             style={{
-              width: 50,
-              height: 50,
-              borderWidth: 1,
-              borderRadius: 25,
+              flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
               marginLeft: 10,
             }}>
-            <Icon name="user" size={20} color={'#131313'} />
+            <Icon1
+              name="arrow-left"
+              size={20}
+              color={'#fff'}
+              onPress={() => navigation.goBack()}
+            />
+            <View
+              style={{
+                width: 50,
+                height: 50,
+                borderWidth: 1,
+                borderRadius: 25,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginLeft: 10,
+                borderColor: '#fff',
+              }}>
+              <Icon name="user" size={20} color={'#fff'} />
+            </View>
           </View>
         );
       },
@@ -452,6 +523,11 @@ const DirectChat = ({route, navigation}) => {
 
   function openModal() {
     console.log('open modal');
+    setModalVisible(true);
+  }
+
+  function closeModal() {
+    setModalVisible(false);
   }
 
   function openEmoji() {
@@ -593,6 +669,47 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     gap: 7,
     paddingHorizontal: 10,
+  },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  optionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginBottom: 20,
+  },
+  option: {
+    alignItems: 'center',
+  },
+  optionText: {
+    marginTop: 5,
+    fontSize: 14,
+  },
+  closeButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 
