@@ -21,6 +21,7 @@ const Otp = ({route, navigation}) => {
       console.log('code', otp);
       const userCredential = await confirm.confirm(otp);
       console.log('Success');
+      console.log(userCredential);
       const {additionalUserInfo} = userCredential;
       if (additionalUserInfo.isNewUser) {
         console.log('User signed in for the first time');

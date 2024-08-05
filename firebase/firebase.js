@@ -26,10 +26,18 @@ if (!getApps().length) {
 
 // Initialize Firebase Authentication
 let auth;
-if (!getAuth(app)) {
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage),
-  });
+if (!auth) {
+  try {
+    auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  } catch (error) {
+    if (error.code === 'auth/already-initialized') {
+      auth = getAuth(app);
+    } else {
+      throw error;
+    }
+  }
 } else {
   auth = getAuth(app);
 }

@@ -115,7 +115,7 @@ const Register = ({navigation, route}) => {
   async function handleUpdateUser() {
     console.log('user credential:', userCredential);
     setIsLoading(true);
-    const user = userCredential.user;
+    const user = userCredential.uid;
     if (user) {
       console.log('User object:', JSON.stringify(user, 2, 0));
       try {

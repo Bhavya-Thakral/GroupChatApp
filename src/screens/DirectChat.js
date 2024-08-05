@@ -51,27 +51,37 @@ const DirectChat = ({route, navigation}) => {
     {
       id: 1,
       label: 'Document',
-      icon: '📄',
+      icon: require('../../public/assets/images/document.png'),
       onPress: () => Alert.alert('Document selected'),
     },
-    {id: 2, label: 'Camera', icon: '📷', onPress: () => console.log('camera')},
+    {
+      id: 2,
+      label: 'Camera',
+      icon: require('../../public/assets/images/camera.png'),
+      onPress: () => console.log('camera'),
+    },
     {
       id: 3,
       label: 'Gallery',
-      icon: '🖼️',
+      icon: require('../../public/assets/images/gallery.png'),
       onPress: () => console.log('Gallery'),
     },
     {
       id: 4,
       label: 'Audio',
-      icon: '🎵',
+      icon: require('../../public/assets/images/audio.png'),
       onPress: () => Alert.alert('Audio selected'),
     },
-    {id: 5, label: 'Location', icon: '📍', onPress: sendLocationMessage},
+    {
+      id: 5,
+      label: 'Location',
+      icon: require('../../public/assets/images/location.png'),
+      onPress: sendLocationMessage,
+    },
     {
       id: 6,
       label: 'Contact',
-      icon: '📇',
+      icon: require('../../public/assets/images/contacts.png'),
       onPress: () => Alert.alert('Contact selected'),
     },
   ];
@@ -527,7 +537,7 @@ const DirectChat = ({route, navigation}) => {
   }
 
   function closeModal() {
-    setModalVisible(false);
+    setModalVisible(!isModalVisible);
   }
 
   function openEmoji() {
@@ -586,6 +596,62 @@ const DirectChat = ({route, navigation}) => {
             }}
           />
         </View>
+        <Modal
+          visible={isModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={closeModal}>
+          <View style={{flex: 0.926, flexDirection: 'column-reverse'}}>
+            <View
+              style={{
+                flex: 0.3,
+              }}>
+              <View
+                style={{
+                  backgroundColor: 'White',
+                  flex: 1,
+                  width: '70%',
+                  marginLeft: 10,
+                  marginBottom: 5,
+                  flexDirection: 'row',
+                  borderWidth: 1,
+                  borderColor: '#C9CDD2',
+                  borderRadius: 8,
+                  flexWrap: 'wrap',
+                  gap: 10,
+                  paddingHorizontal: 20,
+                  padding: 5,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                {shareOptions.map(option => {
+                  return (
+                    <Pressable
+                      onPress={option.onPress}
+                      style={{gap: 4, alignItems: 'center', width: '30%'}}
+                      key={option.key}>
+                      <View
+                        style={{
+                          backgroundColor: '#D0E3FF80',
+                          width: 60,
+                          height: 60,
+                          borderRadius: 30,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginTop: 13,
+                        }}>
+                        <Image source={option.icon} />
+                      </View>
+                      <Text style={{color: '#26282B', fontSize: 10}}>
+                        {option.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </View>
   );

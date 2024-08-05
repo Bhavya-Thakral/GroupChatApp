@@ -1,5 +1,5 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {Image} from 'react-native';
 import {signOut} from 'firebase/auth';
@@ -7,10 +7,22 @@ import Dialog from '../extras/Dialog';
 import {auth} from '../../firebase/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ZegoUIKitPrebuiltCallService from '@zegocloud/zego-uikit-prebuilt-call-rn';
+import {set} from 'date-fns';
 const Settings = ({navigation}) => {
   const [dialogVisible, setDialogVisible] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [image, setImage] = useState('');
+  const user = auth.currentUser;
+  useEffect(() => {
+    setName(user.displayName);
+    setEmail(user.email);
+    setPhone(user.phoneNumber);
+    setImage(user.photoURL);
+  });
 
-  const user = [
+  const userSettings = [
     {
       img: require('../../public/assets/images/account.png'),
       name: 'Account',
@@ -74,17 +86,23 @@ const Settings = ({navigation}) => {
       <View style={styles.about}>
         <Image
           source={{
-            uri: 'https://images.pexels.com/photos/1898555/pexels-photo-1898555.jpeg',
+            uri: image,
           }}
           style={styles.img}
         />
         <View style={{flex: 1}}>
           <Text style={{color: '#fff', fontSize: 16, fontWeight: '600'}}>
-            Bhavya Thakral
+            {name}
           </Text>
-          <Text style={{color: '#fff', fontSize: 13, fontWeight: '500'}}>
-            1234567890
-          </Text>
+          {phone ? (
+            <Text style={{color: '#fff', fontSize: 13, fontWeight: '500'}}>
+              {phone}
+            </Text>
+          ) : (
+            <Text style={{color: '#fff', fontSize: 13, fontWeight: '500'}}>
+              {email}
+            </Text>
+          )}
         </View>
         <Pressable onPress={() => navigation.navigate('Profile')}>
           <Icon name="pen" size={20} color={'#fff'} style={styles.icon} />
@@ -92,7 +110,7 @@ const Settings = ({navigation}) => {
       </View>
       <View style={styles.container}>
         <View style={styles.searchContainer}>
-          {user.map((item, index) => {
+          {userSettings.map((item, index) => {
             return (
               <Pressable
                 style={styles.search}
@@ -165,7 +183,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     marginRight: 10,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderWidth: 1,
     borderColor: '#fff',
   },

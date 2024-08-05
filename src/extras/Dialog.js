@@ -55,10 +55,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#000000',
   },
   modalText: {
     marginBottom: 20,
     textAlign: 'center',
+    color: '#9EA4AA',
   },
   buttonContainer: {
     flexDirection: 'row',

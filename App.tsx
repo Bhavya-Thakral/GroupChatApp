@@ -33,6 +33,16 @@ import {
   ZegoUIKitPrebuiltCallFloatingMinimizedView,
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import Otp from './src/screens/signin/Otp';
+import changeNumber from './src/screens/account/ChangeNumber';
+import twoStepVerification from './src/screens/account/TwoStepVerification';
+import requestAccountInfo from './src/screens/account/RequestAccountInfo';
+import addAccount from './src/screens/account/AddAccount';
+import deleteAccount from './src/screens/account/DeleteAccount';
+import ChangeNumber from './src/screens/account/ChangeNumber';
+import TwoStepVerification from './src/screens/account/TwoStepVerification';
+import RequestAccountInfo from './src/screens/account/RequestAccountInfo';
+import AddAccount from './src/screens/account/AddAccount';
+import DeleteAccount from './src/screens/account/DeleteAccount';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -251,6 +261,34 @@ const App = () => {
           <Stack.Screen
             name="Profile"
             component={Profile}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="ChangeNumber"
+            component={ChangeNumber}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="TwoStepVerification"
+            component={TwoStepVerification}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="RequestAccountInfo"
+            component={RequestAccountInfo}
+            options={{
+              headerShown: true,
+            }}
+          />
+          <Stack.Screen
+            name="AddAccount"
+            component={AddAccount}
             options={{
               headerShown: true,
             }}
