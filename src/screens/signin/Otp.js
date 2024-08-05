@@ -3,6 +3,11 @@ import React, {useState} from 'react';
 import MainScreen from '../../extras/MainScreen';
 import {OtpInput} from 'react-native-otp-entry';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {CommonActions} from '@react-navigation/native';
+
+import ZegoUIKitPrebuiltCallService from '@zegocloud/zego-uikit-prebuilt-call-rn';
+import * as ZIM from 'zego-zim-react-native';
+import * as ZPNs from 'zego-zpns-react-native';
 
 const Otp = ({route, navigation}) => {
   const {confirm} = route.params || {};
@@ -19,14 +24,15 @@ const Otp = ({route, navigation}) => {
       const {additionalUserInfo} = userCredential;
       if (additionalUserInfo.isNewUser) {
         console.log('User signed in for the first time');
-        navigation.navigate('Register');
+        navigation.navigate('Register', {userCredential});
       } else {
         console.log('User has signed in before');
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
-            routes: [{name: 'Home'}],
+            routes: [{name: 'MyTabs'}],
           }),
+          {userCredential},
         );
       }
       await storeUserInfo({

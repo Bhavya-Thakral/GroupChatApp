@@ -11,7 +11,7 @@ import CreateGroup from './src/screens/CreateGroup';
 import {auth} from './firebase/firebase';
 import PhoneSignIn from './src/screens/signup/PhoneSignIn';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import OneList from './src/screens/OneList';
+import Home from './src/screens/Home';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon1 from 'react-native-vector-icons/AntDesign';
 import DirectChat from './src/screens/DirectChat';
@@ -45,7 +45,6 @@ const App = () => {
     const unsubscribe = auth.onAuthStateChanged(async user => {
       if (user) {
         await AsyncStorage.setItem('user', JSON.stringify(user));
-
         setInitialRoute('MyTabs');
       } else {
         await AsyncStorage.removeItem('user');
@@ -75,7 +74,7 @@ const App = () => {
         }}>
         <Tab.Screen
           name="Home"
-          component={OneList}
+          component={Home}
           options={{
             tabBarIcon: ({size, color}) => {
               return <Icon name="home" size={size} color={color} />;

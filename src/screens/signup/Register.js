@@ -22,13 +22,14 @@ import {useChat} from '../../Context/Context';
 import {firebase} from '@react-native-firebase/messaging';
 import MainScreen from '../../extras/MainScreen';
 
-const Register = ({navigation}) => {
+const Register = ({navigation, route}) => {
   const [displayName, setDisplayName] = useState('');
   const [imageUri, setImageUri] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [userToken, setUserToken] = useState(null);
   const {setCurrentUser} = useChat();
   const [loading, setIsLoading] = useState(false);
+  const {userCredential} = route.params;
 
   useEffect(() => {
     async function getToken() {
@@ -67,9 +68,8 @@ const Register = ({navigation}) => {
         await AsyncStorage.setItem('user', JSON.stringify(user));
         await AsyncStorage.setItem('userToken', userToken);
         await set(ref(database, `users/${user.uid}`), {
-          email: user.email,
           name: displayName,
-          phnNo: phoneNumber,
+
           photoURL: imageUri,
           token: userToken,
         });
@@ -113,10 +113,11 @@ const Register = ({navigation}) => {
   }
 
   async function handleUpdateUser() {
+    console.log('user credential:', userCredential);
     setIsLoading(true);
     const user = userCredential.user;
     if (user) {
-      console.log('User object:', user);
+      console.log('User object:', JSON.stringify(user, 2, 0));
       try {
         await updateProfile(user, {
           displayName: displayName,
@@ -129,12 +130,10 @@ const Register = ({navigation}) => {
     } else {
       console.error('User object is undefined.');
     }
-    await AsyncStorage.setItem('user', JSON.stringify(user));
+    await AsyncStorage.setItem('user', JSON.stringify(user, 2, 0));
     await AsyncStorage.setItem('userToken', userToken);
     await set(ref(database, `users/${user.uid}`), {
-      email: user.email,
       name: displayName,
-      phnNo: phoneNumber,
       photoURL: imageUri,
       token: userToken,
     });
@@ -142,7 +141,7 @@ const Register = ({navigation}) => {
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{name: 'Home'}],
+        routes: [{name: 'MyTabs'}],
       }),
     );
     setIsLoading(false);
@@ -165,13 +164,24 @@ const Register = ({navigation}) => {
               height: 150,
               borderRadius: 75,
               borderColor: '#273567',
-              paddingTop: 20,
             }}>
             {isUploadingImage ? (
               <ActivityIndicator size={'small'} color={'#273567'} />
             ) : (
               <>
-                <Icon name="user" size={100} color={'#273567'} />
+                <View
+                  style={{
+                    position: 'absolute',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  {/* <Icon name="user" size={100} color={'#273567'} /> */}
+                  <Image
+                    source={require('../../../public/assets/images/user.png')}
+                    style={styles.img}
+                  />
+                </View>
+
                 <View
                   style={{
                     position: 'relative',
@@ -182,7 +192,7 @@ const Register = ({navigation}) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: 15,
-                    bottom: 10,
+                    top: 50,
                   }}>
                   <Icon name="plus" size={20} color={'#fff'} />
                 </View>
@@ -190,28 +200,17 @@ const Register = ({navigation}) => {
             )}
           </View>
         </Pressable>
+      ) : isUploadingImage ? (
+        <View
+          style={{
+            width: 150,
+            height: 150,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <ActivityIndicator size={'small'} color={'#273567'} />
+        </View>
       ) : (
-        // <View style={{position: 'relative'}}>
-        //   {isUploadingImage ? (
-        //     <Pressable
-        //       style={{
-        //         alignSelf: 'center',
-        //         alignItems: 'center',
-        //         justifyContent: 'center',
-        //         backgroundColor: 'lightgrey',
-        //         padding: 10,
-        //         borderRadius: 50,
-        //         width: 100,
-        //         height: 100,
-        //       }}
-        //       onPress={pickImgHandler}>
-        //       <Icon
-        //         name={isUploadingImage ? 'spinner' : 'user'}
-        //         size={50}
-        //         color={'blue'}
-        //       />
-        //     </Pressable>
-        //   ) : (
         <Pressable
           style={{
             alignSelf: 'center',
@@ -222,8 +221,6 @@ const Register = ({navigation}) => {
           <Image source={{uri: imageUri}} style={styles.img} />
         </Pressable>
       )}
-      {/* // </View> */}
-      {/* )} */}
 
       <View style={styles.content}>
         <Text style={styles.contentHead}>Full Name</Text>
