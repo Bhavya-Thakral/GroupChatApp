@@ -12,11 +12,12 @@ import ZegoUIKitPrebuiltCallService from '@zegocloud/zego-uikit-prebuilt-call-rn
 import * as ZIM from 'zego-zim-react-native';
 import * as ZPNs from 'zego-zpns-react-native';
 
-const OneList = ({navigation}) => {
+const Home = ({navigation, route}) => {
+  const {userCredential} = route.params || {};
   const [users, setUsers] = useState([]);
   const user = auth.currentUser;
   const {setCurrentChat} = useChat();
-  console.log('currentUser in one', user);
+  console.log('currentUser in one', auth, user);
 
   useEffect(() => {
     const usersRef = ref(database, 'users');
@@ -36,6 +37,8 @@ const OneList = ({navigation}) => {
   }, [user]);
 
   useEffect(() => {
+    console.log('user', userCredential);
+
     onUserLogin(user.uid, user.displayName).then(() => {
       const id = user.uid;
       const name = user.displayName;
@@ -156,7 +159,7 @@ const OneList = ({navigation}) => {
   );
 };
 
-export default OneList;
+export default Home;
 
 const styles = StyleSheet.create({
   viewChat: {

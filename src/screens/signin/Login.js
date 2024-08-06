@@ -4,7 +4,8 @@ import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useChat} from '../../Context/Context';
 import messaging from '@react-native-firebase/messaging';
-import {auth} from '../../../firebase/firebase';
+// import {auth} from '../../../firebase/firebase';
+import auth from '@react-native-firebase/auth';
 import ZegoUIKitPrebuiltCallService from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import * as ZIM from 'zego-zim-react-native';
 import * as ZPNs from 'zego-zpns-react-native';
@@ -34,9 +35,9 @@ const Login = ({navigation}) => {
     setLoading(true);
     try {
       const newPhoneNumber = '+91 ' + phone;
-      const confirmation = await auth.signInWithPhoneNumber(newPhoneNumber);
+      const confirmation = await auth().signInWithPhoneNumber(newPhoneNumber);
       setConfirm(confirmation);
-      navigation.navigate('Otp', {confirm: confirmation});
+      navigation.navigate('Otp', {confirm: confirmation, userToken: userToken});
     } catch (e) {
       Alert.alert('Please try again later', e.message);
       console.error('Failed to sign in with phone number', e);

@@ -4,36 +4,43 @@ import MainScreen from '../../extras/MainScreen';
 import {OtpInput} from 'react-native-otp-entry';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CommonActions} from '@react-navigation/native';
-
+import {ref, set} from 'firebase/database';
 import ZegoUIKitPrebuiltCallService from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import * as ZIM from 'zego-zim-react-native';
 import * as ZPNs from 'zego-zpns-react-native';
+import {database} from '../../../firebase/firebase';
 
 const Otp = ({route, navigation}) => {
-  const {confirm} = route.params || {};
+  const {confirm, userToken} = route.params || {};
   console.log(confirm, 'confirm');
-  const [otp, setOtp] = useState('');
+  console.log(userToken, 'userToken');
+  const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function confirmCode() {
     setLoading(true);
     try {
-      console.log('code', otp);
-      const userCredential = await confirm.confirm(otp);
+      console.log('code', code);
+      const userCredential =  await confirm.confirm(code);
       console.log('Success');
       console.log(userCredential);
       const {additionalUserInfo} = userCredential;
       if (additionalUserInfo.isNewUser) {
+        console.log('User signed in for the first time with phone number');
+
+        set(ref(database, `users/${user.uid}`), {
+          token: userToken,
+          phoneNo: user.phoneNumber,
+        });
         console.log('User signed in for the first time');
-        navigation.navigate('Register', {userCredential});
+        navigation.navigate('Register', {user: additionalUserInfo});
       } else {
         console.log('User has signed in before');
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
-            routes: [{name: 'MyTabs'}],
+            routes: [{name: 'MyTabs',params:{additionalUserInfo}}],
           }),
-          {userCredential},
         );
       }
       await storeUserInfo({
@@ -106,7 +113,7 @@ const Otp = ({route, navigation}) => {
       <View style={{width: '80%'}}>
         <OtpInput
           numberOfDigits={6}
-          onTextChange={setOtp}
+          onTextChange={setCode}
           autoFocus={true}
           textInputProps={{
             accessibilityLabel: 'One-Time Password',
