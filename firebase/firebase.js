@@ -1,6 +1,9 @@
 import {getApp, getApps, initializeApp} from 'firebase/app';
-import {getAuth, initializeAuth} from 'firebase/auth';
-import {getReactNativePersistence} from 'firebase/auth';
+import {
+  getAuth,
+  initializeAuth,
+  getReactNativePersistence,
+} from 'firebase/auth';
 import {getDatabase} from 'firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import '@react-native-firebase/messaging';
@@ -17,29 +20,20 @@ const firebaseConfig = {
 };
 
 // Check if Firebase has been initialized
-let app;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApp(); // if already initialized, use that one
-}
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Initialize Firebase Authentication
 let auth;
-if (!auth) {
-  try {
-    auth = initializeAuth(app, {
-      persistence: getReactNativePersistence(AsyncStorage),
-    });
-  } catch (error) {
-    if (error.code === 'auth/already-initialized') {
-      auth = getAuth(app);
-    } else {
-      throw error;
-    }
+try {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch (error) {
+  if (error.code === 'auth/already-initialized') {
+    auth = getAuth(app);
+  } else {
+    throw error;
   }
-} else {
-  auth = getAuth(app);
 }
 
 // Initialize Realtime Database

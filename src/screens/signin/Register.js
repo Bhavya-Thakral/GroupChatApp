@@ -58,20 +58,11 @@ const Register = ({navigation, route}) => {
         } else {
           console.error('User object is undefined.');
         }
-        // updatePhoneNumber(user, phoneNumber)
-        //   .then(() => {
-        //     console.log('Phone number updated successfully');
-        //   })
-        //   .catch(error => {
-        //     console.error('Error updating phone number:', error.message);
-        //   });
         await AsyncStorage.setItem('user', JSON.stringify(user));
         await AsyncStorage.setItem('userToken', userToken);
-        await set(ref(database, `users/${user.uid}`), {
+        await update(ref(database, `users/${user.uid}`), {
           name: displayName,
-
           photoURL: imageUri,
-          token: userToken,
         });
         setCurrentUser(user);
         navigation.dispatch(

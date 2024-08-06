@@ -20,7 +20,6 @@ const Account = () => {
   const [passwordModalVisible, setPasswordModalVisible] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   console.log('Verification Code:', verificationCode);
   console.log('Confirm Password');
@@ -31,7 +30,6 @@ const Account = () => {
 
     if (user) {
       console.log("User's email:", user.email);
-      console.log('Confirm Password', confirmPassword);
 
       try {
         const credential = EmailAuthProvider.credential(
@@ -44,12 +42,12 @@ const Account = () => {
         // Delete user authentication account
         await user.delete();
         console.log('User account and data deleted successfully');
-        setConfirmPassword('');
+
         setVerificationCode('');
         navigation.navigate('Login');
       } catch (error) {
         console.error('Error deleting account:', error);
-        setConfirmPassword('');
+
         setVerificationCode('');
       }
     }
@@ -71,7 +69,6 @@ const Account = () => {
   };
 
   const handlePassWordConfirm = async () => {
-    await setConfirmPassword(verificationCode);
     setPasswordModalVisible(false);
     setDialogVisible(false);
     deleteAccount();
@@ -122,7 +119,6 @@ const Account = () => {
         onClose={hideDialog}
         title="Are you sure you want to 
           delete your account?"
-        // message=" simply dummy text of the printing and etting industry. Lorem Ipsum"
         onConfirm={handleConfirm}
       />
       <Modal
