@@ -10,8 +10,6 @@ const PhoneSignIn = ({navigate}) => {
 
   async function signInWithPhoneNumber(phoneNumber) {
     const newPhoneNumber = '+91 ' + phoneNumber;
-    // console.log('newPhoneNumber', newPhoneNumber);
-
     const confirmation = await auth().signInWithPhoneNumber(newPhoneNumber);
     setConfirm(confirmation);
   }

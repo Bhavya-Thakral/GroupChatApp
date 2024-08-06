@@ -8,3 +8,14 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+-keep class **.zego.**  { *; }
+# Keep all classes in the specified package
+-keep class com.example.myapp.** { *; }
+
+# Keep specific classes
+-keep class com.example.myapp.MyClass { *; }
+
+# Keep specific methods
+-keepclassmembers class com.example.myapp.MyClass {
+    public void myMethod();
+}

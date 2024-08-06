@@ -12,9 +12,9 @@ import {
 import {database, auth} from '../../firebase/firebase';
 import {ref, push, update} from 'firebase/database';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {PickImage} from './PickImage';
+import {PickImage} from '../extras/PickImage';
 import {Alert} from 'react-native';
-import {uploadImage} from './StoreToFirebase';
+import {uploadImage} from '../extras/StoreToFirebase';
 
 const CreateGroup = ({navigation}) => {
   const [groupName, setGroupName] = useState('');
@@ -40,7 +40,7 @@ const CreateGroup = ({navigation}) => {
       }
 
       // Navigate to the group chat screen with the new group ID
-      navigation.navigate('DirectChat', {
+      navigation.navigate('ChatList', {
         chatType: 'groups',
         groupId: newGroupRef.key,
         chatName: groupName,
